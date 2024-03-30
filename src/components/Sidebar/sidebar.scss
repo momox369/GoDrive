@@ -1,0 +1,17 @@
+.custom-nav-pills .nav-link {
+  color: black;
+  font-weight: 300;
+  &:hover {
+    color: black;
+  }
+}
+.nav.nav-pills.flex-column.mb-auto.custom-nav-pills .nav-link.active {
+  background-color: #249dff;
+  color: white;
+  &:hover {
+    background: #249dff;
+  }
+}
+.nav.nav-pills.flex-column.mb-auto.custom-nav-pills .nav-link:hover {
+  background-color: rgb(228, 228, 228);
+}
