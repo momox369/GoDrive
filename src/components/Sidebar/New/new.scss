@@ -1,11 +1,5 @@
-.dropdown-container {
-  position: relative;
-  width: fit-content;
-}
-
 .dropdown-button {
   background-color: white;
-  margin-bottom: 1rem;
   border: none;
   color: black;
   font-size: 0.9rem;
@@ -19,6 +13,7 @@
 
   &:hover {
     background-color: #eaf4ff;
+    transition: background-color 0.4s ease;
   }
 
   &:focus,
@@ -28,12 +23,45 @@
     box-shadow: 0rem 10px 20px rgba(0, 0, 0, 0.16);
   }
 }
-
+.dropdown-container {
+  margin-bottom: 1rem;
+}
 .dropdown-menu {
-  display: block;
-  position: absolute;
-  z-index: 1000;
+  width: 25%;
   background-color: white;
-  left: 0;
-  top: 100%;
+  border: 1px solid gray;
+  display: none; /* Initially hidden, shown with 'show' class */
+}
+
+.dropdown-menu.show {
+  display: block;
+  border-radius: 3px;
+  padding: 0.5em 0; /* Padding at top and bottom inside the menu */
+
+  hr {
+    margin: 0.4em 0em;
+  }
+}
+
+.dropdown-menu li {
+  display: flex;
+  align-items: center;
+  padding-left: 0; /* Removed left padding from <li> */
+}
+
+.dropdown-menu li button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.3em 0.8em;
+  border: none;
+  background-color: white;
+}
+
+.dropdown-menu li button:hover {
+  background-color: rgb(228, 228, 228);
+}
+
+.dropdown-menu li button .menuIcon {
+  margin-right: 1em;
 }

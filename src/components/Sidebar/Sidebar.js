@@ -10,7 +10,7 @@ const Sidebar = () => (
   >
     <a
       href="/"
-      className="d-flex align-items-center mb-3 me-md-auto link-dark text-decoration-none"
+      className="d-flex align-items-center mb-4 me-md-auto link-dark text-decoration-none"
     >
       <img src={logo}></img>
       <h3>GoDrive</h3>

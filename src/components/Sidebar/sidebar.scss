@@ -3,9 +3,11 @@
     color: black;
     font-weight: 300;
     margin-bottom: 0.5rem;
+    transition: border-radius 0.3s ease;
 
     &:hover {
       color: black;
+      border-radius: 1rem !important;
       background-color: rgb(228, 228, 228);
     }
   }
@@ -13,15 +15,14 @@
   .nav-link.active {
     background-color: #249dff !important;
     color: white;
+    border-radius: 1rem !important;
   }
 }
 
 img {
   height: 2em;
 }
-a {
-  font-size: large;
-}
+
 .container {
   padding: 1rem 3rem;
   background-color: rgb(249, 251, 255);
@@ -32,13 +33,13 @@ a {
   text-decoration: none;
 
   img {
-    max-height: 100%; 
-    object-fit: contain; 
+    max-height: 100%;
+    object-fit: contain;
   }
 
   h3 {
     margin: 0;
     padding: 0;
-    line-height: 1; 
+    line-height: 1;
   }
 }

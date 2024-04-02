@@ -6,6 +6,7 @@ import Home from "./pages/Home/Home";
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css"
 />;
+
 const App = () => (
   <BrowserRouter>
     <div className="d-flex" style={{ backgroundColor: " rgb(249, 251, 255)" }}>

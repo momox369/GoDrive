@@ -1,0 +1,36 @@
+#container {
+  display: flex;
+  justify-content: space-between;
+  background-color: white;
+  height: fit-content;
+}
+.custom-toggle-btn button {
+  background-color: white;
+  color: black;
+  display: flex;
+  align-items: center;
+  border-radius: 20px;
+}
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 15%;
+}
+.info:hover {
+  background-color: red !important;
+}
+.btn-light {
+  background-color: white !important;
+  border: black;
+}
+.btn-light:hover {
+  background-color: black;
+}
+.custom-toggle-btn .btn.active {
+  color: black;
+  background-color: #95cfff !important;
+}
+button.active.btn.btn-primary {
+  background-color: #95cfff !important;
+  color: black;
+}
