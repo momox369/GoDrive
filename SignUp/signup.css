@@ -1,0 +1,32 @@
+body {
+    background-color: #f7f8fa;
+}
+.card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.form-control, .btn-primary {
+    border-radius: 20px;
+}
+.btn-primary, .btn-signup {
+    border: none;
+    padding: 10px 0;
+    background: #007bff;
+    background: linear-gradient(45deg, #0062cc, #0056b3);
+    text-align: center;
+}
+.login-footer {
+    margin-top: 20px;
+    text-align: center;
+}
+.login-footer a {
+    text-decoration: none;
+    color: #007bff;
+}
+.logo-placeholder {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.logo-placeholder img {
+    width: 100px; /* Adjust based on your logo's size */
+}
