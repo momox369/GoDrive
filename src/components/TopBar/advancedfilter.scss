@@ -1,0 +1,49 @@
+/* Custom CSS to change the border color of checkboxes */
+.custom-checkbox .form-check-input:checked {
+  border-color: black;
+}
+
+.custom-checkbox .form-check-input {
+  border-color: black;
+}
+
+/* When the checkbox is focused with a keyboard */
+/* advancedfilter.scss */
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); // Semi-transparent gray backdrop
+  z-index: 1000; // Ensure it's below the dropdown menu but above other content
+}
+
+.advanced-search-dropdown {
+  position: absolute;
+  left: 0;
+  transform: translateX(0);
+  width: 100%;
+  z-index: 1050; // Above the backdrop
+  background-color: #fff; // White background
+  // Any other styles you want to apply to the dropdown menu
+}
+.custom-btn {
+  background-color: #249dff !important;
+  border: none !important;
+  padding: 0.5em 1.5em !important;
+  border-radius: 30px !important;
+  &:hover {
+    background-color: #135992 !important;
+  }
+}
+.reset-btn {
+  border: none !important;
+  color: #249dff !important;
+  border-radius: 30px !important;
+  &:hover {
+    background-color: rgb(246, 246, 246) !important;
+    border-radius: 30px !important;
+  }
+}

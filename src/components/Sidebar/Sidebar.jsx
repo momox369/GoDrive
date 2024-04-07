@@ -8,17 +8,14 @@ const Sidebar = () => (
     className="d-flex flex-column flex-shrink-0 container"
     style={{ width: "280px", height: "100vh" }}
   >
-    <a
-      href="/"
-      className="d-flex align-items-center mb-4 me-md-auto link-dark text-decoration-none"
-    >
-      <img src={logo}></img>
-      <h3>GoDrive</h3>
+    <a href="/" className="brand d-flex link-dark align-items-center mb-4">
+      <img src={logo} alt="GoDrive logo" className="logo"></img>
+      <h3 className="m-0">GoDrive</h3>
     </a>
     <ul className="nav nav-pills flex-column mb-auto custom-nav-pills">
       {navItems.map((navItem, index) => (
         <li className="nav-item" key={index}>
-          {navItem.item}
+          {navItem}
         </li>
       ))}
     </ul>

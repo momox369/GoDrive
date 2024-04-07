@@ -26,7 +26,12 @@ export const NavItem = ({ children, to, icon: Icon }) => {
     <>
       <NavLink
         to={to}
-        className="nav-link d-flex align-items-center"
+        end // Use `end` for exact path matching in React Router v6
+        className={({ isActive }) =>
+          isActive
+            ? "nav-link d-flex align-items-center active"
+            : "nav-link d-flex align-items-center"
+        }
         aria-current="page"
         onClick={handleToggle}
       >
@@ -39,73 +44,20 @@ export const NavItem = ({ children, to, icon: Icon }) => {
 };
 
 export const navItems = [
-  {
-    item: <New />,
-  },
-  {
-    item: (
-      <NavLink
-        to="/home"
-        className="nav-link d-flex align-items-center"
-        aria-current="page"
-      >
-        <House size={18} style={{ marginRight: "1em" }} weight="bold" />
-        <span style={{ fontSize: "smaller" }}>Home</span>
-      </NavLink>
-    ),
-  },
-  { item: <Drive icon={HardDrives} to="/drive" children="My Drive" /> },
-  {
-    item: (
-      <NavLink
-        to="/shared"
-        className="nav-link d-flex align-items-center"
-        aria-current="page"
-      >
-        <CirclesThree size={18} style={{ marginRight: "1em" }} weight="bold" />
-        <span style={{ fontSize: "smaller" }}>Shared With Me</span>
-      </NavLink>
-    ),
-  },
-  {
-    item: (
-      <NavLink
-        to="/recent"
-        className="nav-link d-flex align-items-center"
-        aria-current="page"
-      >
-        <ClockCounterClockwise
-          size={18}
-          style={{ marginRight: "1em" }}
-          weight="bold"
-        />
-        <span style={{ fontSize: "smaller" }}>Recent</span>
-      </NavLink>
-    ),
-  },
-
-  {
-    item: (
-      <NavLink
-        to="/starred"
-        className="nav-link d-flex align-items-center"
-        aria-current="page"
-      >
-        <Star size={18} style={{ marginRight: "1em" }} weight="bold" />
-        <span style={{ fontSize: "smaller" }}>Recent</span>
-      </NavLink>
-    ),
-  },
-  {
-    item: (
-      <NavLink
-        to="/trash"
-        className="nav-link d-flex align-items-center"
-        aria-current="page"
-      >
-        <Trash size={18} style={{ marginRight: "1em" }} weight="bold" />
-        <span style={{ fontSize: "smaller" }}>Trash</span>
-      </NavLink>
-    ),
-  },
+  <New />,
+  <NavItem to="/" icon={House}>
+    Home
+  </NavItem>,
+  <NavItem icon={HardDrives} to="/drive">
+    My Drive
+  </NavItem>,
+  <NavItem to="/shared" icon={CirclesThree}>
+    Shared With Me
+  </NavItem>,
+  <NavItem to="/starred" icon={Star}>
+    Starred
+  </NavItem>,
+  <NavItem to="/trash" icon={Trash}>
+    Trash
+  </NavItem>,
 ];

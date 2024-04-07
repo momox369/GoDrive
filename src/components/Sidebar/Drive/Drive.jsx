@@ -3,7 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { Folder } from "@phosphor-icons/react"; // Assuming you're using this for another purpose within Drive or its children
 import "../sidebar.scss";
 
-const Drive = ({ children, to, icon: Icon }) => {
+const DriveMenu = ({ children, to, icon: Icon }) => {
   const location = useLocation();
   const [isDriveExpanded, setDriveExpanded] = useState(false);
 
@@ -31,7 +31,7 @@ const Drive = ({ children, to, icon: Icon }) => {
         {Icon && (
           <Icon size={18} style={{ marginRight: "1em" }} weight="bold" />
         )}
-        <span style={{ fontSize: "smaller" }}>{children}</span>
+        <span>{children}</span>
       </NavLink>
       {isDriveExpanded && to === "/drive" && (
         <ul
@@ -50,4 +50,4 @@ const Drive = ({ children, to, icon: Icon }) => {
   );
 };
 
-export default Drive;
+export default DriveMenu;

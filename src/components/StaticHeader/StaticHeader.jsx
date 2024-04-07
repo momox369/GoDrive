@@ -12,8 +12,7 @@ export default function StaticHeader({ title }) {
 
   return (
     <div id="container">
-      <h4>{title || "Home"}</h4>{" "}
-      {/* Using the title prop or default to 'Home' */}
+      <h4>{title}</h4>{" "}
       <div className="buttons">
         {" "}
         <ButtonGroup className="custom-toggle-btn">

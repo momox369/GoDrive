@@ -1,0 +1,50 @@
+.search-bar-container {
+  width: 65%;
+}
+.input-group {
+  &:focus-within {
+    #inputGroup-sizing-default {
+      background-color: white;
+    }
+    .form-control {
+      background-color: white;
+    }
+  }
+}
+.input-group,
+.input-group > .form-control,
+#inputGroup-sizing-default {
+  transition: background-color 0.2s ease-in-out;
+}
+.input-group > .form-control {
+  background-color: rgb(240, 242, 246);
+  border: none;
+
+  &:focus {
+    outline: none;
+    box-shadow: none;
+    background-color: white;
+    border-color: transparent;
+  }
+
+  &:active {
+    outline: none;
+  }
+}
+
+#inputGroup-sizing-default {
+  background-color: rgb(240, 242, 246);
+  display: flex;
+  border: none;
+  align-items: center;
+  padding: 1em;
+
+  &:focus-within {
+    outline: none;
+    box-shadow: none;
+  }
+
+  &:hover {
+    color: #585e64;
+  }
+}

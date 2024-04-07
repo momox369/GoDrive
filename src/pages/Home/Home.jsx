@@ -5,8 +5,8 @@ import StaticHeader from "../../components/StaticHeader/StaticHeader";
 
 function Home() {
   return (
-    <div className="row">
-      <StaticHeader />
+    <div className="content">
+      <StaticHeader title={"Home"} />
     </div>
   );
 }

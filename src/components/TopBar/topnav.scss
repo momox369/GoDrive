@@ -1,0 +1,29 @@
+nav.navbar.bg-body-tertiary {
+  background-color: rgb(249, 251, 255) !important;
+  margin: 0 !important;
+  padding: 0px !important;
+}
+.element.style {
+  flex-grow: 1;
+}
+.navbar {
+  // Your existing styles
+
+  .brand {
+    // Adjust as necessary for your design
+    .logo {
+      height: 40px; // Example height, adjust as necessary
+      margin-right: 10px; // Adds spacing between logo and title
+    }
+
+    h3 {
+      margin: 0; // Removes default margin to help with alignment
+    }
+  }
+
+  // Ensure Settings and ProfileIcon have controlled sizes or margins
+}
+.container-fluid.d-flex.justify-content-start.align-items-center {
+  padding-left: 0px;
+  margin-bottom: 0.8em;
+}
