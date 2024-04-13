@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css"; // Import bootstrap CSS
 import "./filterbar.scss";
 import { File } from "@phosphor-icons/react/dist/ssr";
 import { Folder } from "@phosphor-icons/react";
+import { FileText } from "react-bootstrap-icons";
 
 const FilterBar = () => {
   // State for toggle buttons (Files/Folders)
@@ -39,7 +40,7 @@ const FilterBar = () => {
           {activeFilter === "Files" ? (
             <span>&#10003; </span>
           ) : (
-            <File size={15} />
+            <FileText size={18} />
           )}{" "}
           Files
         </ToggleButton>
@@ -57,7 +58,7 @@ const FilterBar = () => {
           {activeFilter === "Folders" ? (
             <span>&#10003; </span>
           ) : (
-            <Folder size={15} />
+            <Folder size={18} />
           )}{" "}
           Folders
         </ToggleButton>

@@ -1,33 +1,30 @@
 import React, { useState } from "react";
 import profileIcon from "../../assets/default-profile-picture.png";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
+import "./profileicon.css";
 function ProfileIcon() {
-  const [isHovering, setIsHovering] = useState(false);
-  const userName = "Go Drive";
-  const userEmail = "godrive@example.com";
+  const renderTooltip = (props) => (
+    <Tooltip id="button-tooltip" {...props}>
+      <p id="username">Hi, username!</p>
+      Ramzi Zeineddine
+      <br />
+      rzeineddine200382@gmail.com
+    </Tooltip>
+  );
 
   return (
-    <div
-      className="profile-icon"
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
+    <OverlayTrigger
+      placement="bottom"
+      delay={{ show: 250, hide: 400 }}
+      overlay={renderTooltip}
+      style={{ backgroundColor: "lightgray" }}
     >
-      <img src={profileIcon} alt="avatar" width="40" height="50" />
-      {isHovering && (
-        <div
-          style={{
-            position: "absolute",
-            backgroundColor: "white",
-            padding: "1px",
-            border: "1px solid #ddd",
-            marginTop: "5px",
-            right: "30px",
-          }}
-        >
-          <div>{userName}</div>
-          <div>{userEmail}</div>
-        </div>
-      )}
-    </div>
+      <img
+        src={profileIcon} // Replace with path to your avatar image
+        alt="Profile"
+        style={{ width: 30, height: 30, borderRadius: "50%" }} // Styles the image as a circular avatar
+      />
+    </OverlayTrigger>
   );
 }
 

@@ -1,0 +1,24 @@
+.table {
+  .row-data {
+    padding: 1.2rem 0rem;
+    color: rgb(85, 85, 85);
+    font-weight: 200;
+  }
+  th {
+    font-weight: normal;
+    font-size: 0.95rem;
+  }
+  tbody {
+    font-size: 0.85rem;
+    #name {
+      color: black;
+      font-weight: 400;
+    }
+  }
+}
+.table > :not(caption) > * > * {
+  padding-left: 0px;
+}
+.file-table thead {
+ 
+}

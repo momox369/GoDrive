@@ -1,0 +1,16 @@
+.tooltip-inner {
+  background-color: rgb(74, 74, 74);
+  color: lightgray;
+  text-align: start;
+  padding: 0.4rem;
+  font-size: 0.8rem;
+
+  white-space: nowrap; /* Prevents the text from wrapping */
+  max-width: none;
+}
+#username {
+  color: white;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+}

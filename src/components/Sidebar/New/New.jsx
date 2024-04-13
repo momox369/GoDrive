@@ -7,7 +7,10 @@ import { BoxArrowUp, FileArrowUp } from "react-bootstrap-icons";
 const New = () => {
   return (
     <Dropdown className="d-inline">
-      <Dropdown.Toggle id="dropdown-autoclose-true">
+      <Dropdown.Toggle
+        id="dropdown-autoclose-true"
+        className="settings-dropdown"
+      >
         <Plus weight="bold" size={20} />
         New
       </Dropdown.Toggle>
