@@ -1,0 +1,41 @@
+.custom-pill {
+  background-color: white;
+  border-radius: 20px;
+  color: black;
+  font-weight: 400;
+  width: 100%;
+  border: 1px solid rgb(67, 67, 67);
+  justify-content: space-evenly;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    background-color: lightgrey !important;
+    color: black !important;
+    border-color: rgb(67, 67, 67) !important;
+  }
+}
+
+.active-toggle {
+  color: black !important;
+  background-color: #95cfff !important;
+  border-color: rgb(67, 67, 67) !important;
+  font-weight: 400;
+}
+.dropdown {
+  margin-left: 0 !important;
+}
+.dropdown.dropdown-toggle {
+  border: 1px solid rgb(67, 67, 67);
+  color: rgb(99, 99, 99);
+  border-radius: 11px;
+  &:hover,
+  &:focus {
+    background-color: lightgrey !important;
+    color: black !important;
+    border-color: rgb(102, 102, 102) !important;
+  }
+}
+.btn.show {
+  background-color: lightgrey !important;
+}
