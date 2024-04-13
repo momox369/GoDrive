@@ -13,12 +13,10 @@
     #name {
       color: black;
       font-weight: 400;
+      width: 40%;
     }
   }
 }
 .table > :not(caption) > * > * {
   padding-left: 0px;
-}
-.file-table thead {
- 
 }
