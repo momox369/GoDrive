@@ -3,7 +3,7 @@
   border-radius: 20px;
   color: black;
   font-weight: 400;
-  padding: 0.4rem;
+  padding: 0.3rem;
   width: 100%;
   border: 1px solid rgb(67, 67, 67);
   justify-content: space-evenly;
@@ -40,3 +40,16 @@
 .btn.show {
   background-color: lightgrey !important;
 }
+.drop-location {
+  padding: 0.5rem;
+  .drop-item {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    font-weight: 300;
+    .drop-icon {
+      margin-right: 1rem;
+    }
+  }
+}
+

@@ -8,7 +8,7 @@ import FileTable from "../../components/FileTable/FileTable";
 function Home() {
   return (
     <div className="content">
-      <StaticHeader title={"Home"} />
+      <StaticHeader title={"Welcome to GoDrive"} />
       <FilterBar />
       <FileTable />
     </div>

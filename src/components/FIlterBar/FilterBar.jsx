@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Button, ButtonGroup, Dropdown, ToggleButton } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css"; // Import bootstrap CSS
 import "./filterbar.scss";
-import { File } from "@phosphor-icons/react/dist/ssr";
-import { Folder } from "@phosphor-icons/react";
+import { File, Check } from "@phosphor-icons/react/dist/ssr";
+import { CirclesThree, Folder, HardDrives } from "@phosphor-icons/react";
 import { FileText } from "react-bootstrap-icons";
 
 const FilterBar = () => {
@@ -25,7 +25,8 @@ const FilterBar = () => {
   const activeClass = "active-toggle";
   return (
     <div style={{ display: "flex", alignItems: "center", marginTop: "1em" }}>
-      <ButtonGroup style={{ width: "20%" }}>
+      Suggested
+      <ButtonGroup style={{ width: "20%", marginLeft: "1rem" }}>
         {/* Toggle buttons for Files and Folders */}
         <ToggleButton
           type="checkbox"
@@ -81,7 +82,6 @@ const FilterBar = () => {
           <Dropdown.Item eventKey="3">Type 3</Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
-
       <Dropdown className="d-inline mx-2" onToggle={handleDropdownToggle}>
         <Dropdown.Toggle
           variant="outline-primary"
@@ -95,7 +95,6 @@ const FilterBar = () => {
           <Dropdown.Item eventKey="2">Person 2</Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
-
       <Dropdown className="d-inline mx-2" onToggle={handleDropdownToggle}>
         <Dropdown.Toggle
           variant="outline-primary"
@@ -109,7 +108,6 @@ const FilterBar = () => {
           <Dropdown.Item eventKey="2">Date 2</Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
-
       <Dropdown className="d-inline mx-2" onToggle={handleDropdownToggle}>
         <Dropdown.Toggle
           variant="outline-primary"
@@ -118,9 +116,19 @@ const FilterBar = () => {
         >
           Location
         </Dropdown.Toggle>
-        <Dropdown.Menu>
-          <Dropdown.Item eventKey="1">Location 1</Dropdown.Item>
-          <Dropdown.Item eventKey="2">Location 2</Dropdown.Item>
+        <Dropdown.Menu className="drop-location">
+          <Dropdown.Item eventKey="1" className="drop-item">
+            <Check size={22} weight="bold" className="drop-icon" />
+            Anywhere in Drive
+          </Dropdown.Item>
+          <Dropdown.Item eventKey="2" className="drop-item">
+            <HardDrives size={22} weight="bold" className="drop-icon" />
+            My Drive
+          </Dropdown.Item>
+          <Dropdown.Item eventKey="2" className="drop-item">
+            <CirclesThree size={22} weight="bold" className="drop-icon" />
+            Shared With Me
+          </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
     </div>
