@@ -26,17 +26,24 @@ export const NavItem = ({ children, to, icon: Icon }) => {
     <>
       <NavLink
         to={to}
-        end // Use `end` for exact path matching in React Router v6
+        end
         className={({ isActive }) =>
           isActive
             ? "nav-link d-flex align-items-center active"
             : "nav-link d-flex align-items-center"
         }
-        aria-current="page"
         onClick={handleToggle}
       >
-        <Icon size={20} style={{ marginRight: "1em" }} weight="bold" />
-        <span>{children}</span>
+        {({ isActive }) => (
+          <>
+            <Icon
+              size={20}
+              weight={isActive ? "fill" : "bold"}
+              style={{ marginRight: "1em" }}
+            />
+            <span>{children}</span>
+          </>
+        )}
       </NavLink>
       {isExpanded && to === "/drive"}
     </>
