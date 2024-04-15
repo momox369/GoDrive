@@ -14,7 +14,7 @@ const App = () => (
     <ViewModeProvider>
       <div
         style={{
-          backgroundColor: "rgb(249, 251, 255)",
+          backgroundColor: "#f7fafd",
           paddingTop: "0.5em",
           height: "100vh", // Keeps the app filling the entire viewport height
           display: "flex",

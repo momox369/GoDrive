@@ -139,10 +139,12 @@ const FileTable = () => {
       <tbody>
         {files.map((file, index) => (
           <tr key={index}>
-            <td>{file.name}</td>
-            <td>{file.reason}</td>
-            <td>{file.owner}</td>
-            <td>{file.location}</td>
+            <td id="name" className="row-data">
+              {file.name}
+            </td>
+            <td className="row-data">{file.reason}</td>
+            <td className="row-data">{file.owner}</td>
+            <td className="row-data">{file.location}</td>
           </tr>
         ))}
       </tbody>

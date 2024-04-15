@@ -17,7 +17,7 @@
   transition: background-color 0.2s ease-in-out;
 }
 .input-group > .form-control {
-  background-color: rgb(240, 242, 246);
+  background-color: #e9eef6;
   border: none;
 
   &:focus {
@@ -33,7 +33,7 @@
 }
 
 #inputGroup-sizing-default {
-  background-color: rgb(240, 242, 246);
+  background-color: #e9eef6;
   display: flex;
   border: none;
   align-items: center;
