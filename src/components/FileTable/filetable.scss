@@ -1,9 +1,13 @@
 .table {
-  .row-data {
-    padding: 1.2rem 0rem;
+  td {
+    padding: 0.8rem 0rem;
     color: rgb(85, 85, 85);
     font-weight: 200;
   }
+  .selected-file {
+    background-color: #c1e7fe;
+  }
+
   th {
     font-weight: normal;
     font-size: 0.87rem;
@@ -15,7 +19,6 @@
       font-weight: 400;
       width: 40%;
       padding-left: 1.5rem;
-      
     }
   }
 }
@@ -63,4 +66,8 @@
 }
 p {
   margin: 0px;
+}
+
+.selected-file {
+  background-color: #c1e7fe;
 }

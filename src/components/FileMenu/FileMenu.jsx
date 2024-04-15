@@ -9,11 +9,13 @@ import {
 } from "@phosphor-icons/react";
 import React from "react";
 import "./filemenu.scss";
+import { Dropdown } from "react-bootstrap";
 
-const FileMenu = () => {
+const FileMenu = ({ counter, resetCounter }) => {
   return (
     <div className="file-menu-row">
       <X
+        onClick={resetCounter}
         className="file-menu-icon"
         weight="bold"
         size={18}
@@ -21,7 +23,7 @@ const FileMenu = () => {
       />
       <div className="part">
         <span style={{ marginRight: "10px", color: "#444746" }}>
-          1 selected
+          {counter} selected
         </span>
         <UserPlus
           className="file-menu-icon"
@@ -53,12 +55,22 @@ const FileMenu = () => {
           size={20}
           style={{ margin: "0 5px", color: "#444746" }}
         />
-        <DotsThreeVertical
-          className="file-menu-icon"
-          weight="bold"
-          size={20}
-          style={{ margin: "0 5px", color: "#444746" }}
-        />
+        <Dropdown className="d-inline ">
+          <Dropdown.Toggle className="dropdown-autoclose-true custom-kebab">
+            <DotsThreeVertical
+              className="file-menu-icon"
+              weight="bold"
+              size={20}
+              style={{ margin: "0 5px", color: "#444746" }}
+            />
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu>
+            <Dropdown.Item href="#">Menu Item</Dropdown.Item>
+            <Dropdown.Item href="#">Menu Item</Dropdown.Item>
+            <Dropdown.Item href="#">Menu Item</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       </div>
     </div>
   );

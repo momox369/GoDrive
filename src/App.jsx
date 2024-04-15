@@ -16,18 +16,17 @@ const App = () => (
         style={{
           backgroundColor: "#f7fafd",
           paddingTop: "0.5em",
-          height: "100vh", // Keeps the app filling the entire viewport height
+          height: "100vh",
           display: "flex",
-          flexDirection: "column", // Stacks the navbar and content area vertically
+          flexDirection: "column",
         }}
       >
-        <div className="d-flex" style={{ flexGrow: 1, overflow: "hidden" }}>
-          <Sidebar
-            style={{ width: "250px", flexShrink: 0, overflowY: "auto" }}
-          />
+        <div className="d-flex" style={{ overflow: "hidden" }}>
+          <Sidebar style={{ flexShrink: 0, overflowY: "auto" }} />
+
           <main
             style={{
-              flexGrow: 1,
+              flex: 4,
               overflowY: "auto",
               marginRight: "1.3em",
             }}

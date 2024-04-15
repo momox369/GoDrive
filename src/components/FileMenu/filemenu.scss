@@ -14,11 +14,20 @@
   align-items: center;
 }
 .file-menu-icon {
-  
 }
 
-.file-menu-icon:hover {
-  background-color: #e9eef6;
-  margin: 0; 
+.custom-kebab {
+  background-color: #f0f4f8;
+  border: none;
+  padding: 0px;
+  display: flex;
+  align-items: center;
+  &:hover,
+  &:active {
+    background-color: #f0f4f8;
+    border: none;
+  }
+  &::after {
+    display: none;
+  }
 }
-

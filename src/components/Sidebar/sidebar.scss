@@ -1,7 +1,8 @@
 .custom-nav-pills {
   .nav-link {
     color: black;
-    font-weight: 300;
+    font-weight: 400;
+    font-size: 0.85rem;
     margin-bottom: 0.5rem;
     transition: border-radius 0.3s ease;
 
@@ -24,6 +25,7 @@ img {
 }
 
 .container {
+  flex: 0.7;
   padding: 1rem 3rem;
   background-color: rgb(249, 251, 255);
 }

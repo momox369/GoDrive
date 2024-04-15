@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import "./sidebar.scss";
 import { navItems } from "../../config/lists";
 import logo from "../../assets/logo.png";
+import Storage from "./Storage/Storage";
 const Sidebar = () => (
   <div
     className="d-flex flex-column flex-shrink-0 container"
@@ -18,6 +19,7 @@ const Sidebar = () => (
           {navItem}
         </li>
       ))}
+      <Storage />
     </ul>
   </div>
 );
