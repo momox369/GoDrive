@@ -33,7 +33,6 @@ export default function StaticHeader({ title }) {
         >
           <Button
             variant={viewMode === "info" ? "primary" : "light"}
-            onClick={() => setViewMode("info")}
             className={viewMode === "info" ? "active" : ""}
           >
             <InfoCircle />

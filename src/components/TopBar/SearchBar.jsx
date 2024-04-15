@@ -16,8 +16,15 @@ function SearchBar() {
       )}
       <div className="search-bar-container">
         <InputGroup className="search-input-group">
-          <Button variant="outline-secondary" id="inputGroup-sizing-default">
-            <MagnifyingGlass size={20} />
+          <Button
+            variant="outline-secondary"
+            id="inputGroup-sizing-default"
+            style={{
+              borderTopLeftRadius: "30px",
+              borderBottomLeftRadius: "30px",
+            }}
+          >
+            <MagnifyingGlass size={20} weight="bold" />
           </Button>
 
           <Form.Control
@@ -31,8 +38,12 @@ function SearchBar() {
             <Dropdown.Toggle
               variant="outline-secondary"
               id="inputGroup-sizing-default"
+              style={{
+                borderTopRightRadius: "30px",
+                borderBottomRightRadius: "30px",
+              }}
             >
-              <Faders size={20} />
+              <Faders size={20} weight="bold" />
             </Dropdown.Toggle>
 
             <Dropdown.Menu

@@ -38,6 +38,7 @@
   border: none;
   align-items: center;
   padding: 1em;
+  color: #444746;
 
   &:focus-within {
     outline: none;
@@ -47,4 +48,7 @@
   &:hover {
     color: #585e64;
   }
+}
+.search-input-group {
+  border-radius: 20px;
 }
