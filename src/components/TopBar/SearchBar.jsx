@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import "./SearchBar.scss"; // Make sure this CSS file contains the necessary styles
 import { Faders, MagnifyingGlass } from "@phosphor-icons/react";
-import { Dropdown, Form, InputGroup, Button } from "react-bootstrap";
+import {
+  Dropdown,
+  Form,
+  InputGroup,
+  Button,
+  OverlayTrigger,
+  Tooltip,
+} from "react-bootstrap";
 import AdvancedSearch from "./AdvancedFilter"; // This is your advanced filter form
 
 function SearchBar() {
@@ -16,17 +23,21 @@ function SearchBar() {
       )}
       <div className="search-bar-container">
         <InputGroup className="search-input-group">
-          <Button
-            variant="outline-secondary"
-            id="inputGroup-sizing-default"
-            style={{
-              borderTopLeftRadius: "30px",
-              borderBottomLeftRadius: "30px",
-            }}
+          <OverlayTrigger
+            placement="bottom"
+            overlay={<Tooltip>Search</Tooltip>}
           >
-            <MagnifyingGlass size={20} weight="bold" />
-          </Button>
-
+            <Button
+              variant="outline-secondary"
+              id="inputGroup-sizing-default"
+              style={{
+                borderTopLeftRadius: "30px",
+                borderBottomLeftRadius: "30px",
+              }}
+            >
+              <MagnifyingGlass size={20} weight="bold" />
+            </Button>
+          </OverlayTrigger>
           <Form.Control
             className="search-input"
             aria-label="Default"
@@ -35,16 +46,21 @@ function SearchBar() {
           />
 
           <Dropdown show={showDropdown} onToggle={toggleDropdown}>
-            <Dropdown.Toggle
-              variant="outline-secondary"
-              id="inputGroup-sizing-default"
-              style={{
-                borderTopRightRadius: "30px",
-                borderBottomRightRadius: "30px",
-              }}
+            <OverlayTrigger
+              placement="bottom"
+              overlay={<Tooltip>Advanced Search</Tooltip>}
             >
-              <Faders size={20} weight="bold" />
-            </Dropdown.Toggle>
+              <Dropdown.Toggle
+                variant="outline-secondary"
+                id="inputGroup-sizing-default"
+                style={{
+                  borderTopRightRadius: "30px",
+                  borderBottomRightRadius: "30px",
+                }}
+              >
+                <Faders size={20} weight="bold" />
+              </Dropdown.Toggle>
+            </OverlayTrigger>
 
             <Dropdown.Menu
               align="end"

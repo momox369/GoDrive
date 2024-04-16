@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Gear } from "@phosphor-icons/react";
-import { Dropdown } from "react-bootstrap";
+import { Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
 import "./settings.scss";
 
 export default function Settings() {
@@ -10,13 +10,15 @@ export default function Settings() {
   return (
     <div>
       <Dropdown>
-        <Dropdown.Toggle
-          variant="secondary"
-          id="dropdown-settings"
-          className="settings-dropdown"
-        >
-          <Gear size={25} />
-        </Dropdown.Toggle>
+        <OverlayTrigger placement="bottom" overlay={<Tooltip>Settings</Tooltip>}>
+          <Dropdown.Toggle
+            variant="secondary"
+            id="dropdown-settings"
+            className="settings-dropdown"
+          >
+            <Gear size={25} />
+          </Dropdown.Toggle>
+        </OverlayTrigger>
 
         <Dropdown.Menu>
           {settingsOptions.map((option, index) => (

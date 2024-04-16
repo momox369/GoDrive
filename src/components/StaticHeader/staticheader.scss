@@ -11,11 +11,7 @@
   align-items: center;
   border-radius: 20px;
 }
-.buttons {
-  display: flex;
-  justify-content: space-between;
-  width: 15%;
-}
+
 .info:hover {
   background-color: red !important;
 }
@@ -28,10 +24,20 @@
 }
 .custom-toggle-btn .btn.active {
   color: black;
-  background-color: #95cfff !important;
+  background-color: #c1e7fe !important;
+  border-color: black !important;
 }
 button.active.btn.btn-primary {
-  background-color: #95cfff !important;
+  background-color: #c1e7fe !important;
   color: black;
 }
 
+.btn-secondary {
+  &:hover {
+    background-color: rgb(238, 238, 238) !important;
+    color: black !important;
+  }
+}
+.display-icons {
+  font-weight: bold;
+}
