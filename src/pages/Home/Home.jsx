@@ -5,6 +5,7 @@ import StaticHeader from "../../components/StaticHeader/StaticHeader";
 import FilterBar from "../../components/FIlterBar/FilterBar";
 import FileTable from "../../components/FileTable/FileTable";
 import FileMenu from "../../components/FileMenu/FileMenu";
+import FileList from "../../components/FileTable/FileList";
 
 function Home() {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -41,21 +42,25 @@ function Home() {
   };
 
   useEffect(() => {}, [selectedFiles]);
+
+  const fileIds = selectedFiles.map((file) => file.id);
+
   return (
     <div className="content">
       <StaticHeader title={"Welcome to GoDrive"} />
       {selectedFiles.length > 0 ? (
-        <FileMenu counter={selectedFiles.length} resetCounter={resetCounter} />
+        <FileMenu
+          selectedFileIds={fileIds}
+          counter={selectedFiles.length}
+          resetCounter={resetCounter}
+        />
       ) : (
         <FilterBar
           activeFilters={activeFilters}
           setActiveFilters={updateFilters}
         />
       )}
-      <FileTable
-        onFileSelect={setSelectedFiles}
-        selectedFiles={selectedFiles}
-      />
+      <FileList onFileSelect={setSelectedFiles} selectedFiles={selectedFiles} />
     </div>
   );
 }

@@ -7,7 +7,7 @@ import {
   ToggleButton,
   Tooltip,
 } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css"; // Import bootstrap CSS
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./filterbar.scss";
 import { File, Check } from "@phosphor-icons/react/dist/ssr";
 import {

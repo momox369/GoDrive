@@ -21,6 +21,9 @@
       width: 40%;
       padding-left: 1.5rem;
     }
+    #owner {
+      width: 15%;
+    }
   }
 }
 .table > :not(caption) > * > * {
@@ -42,7 +45,7 @@
   align-items: center;
 }
 
-.grid-item img {
+.grid-item img, .grid-item embed {
   width: 92%;
   height: 150px;
   object-fit: cover;

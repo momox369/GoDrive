@@ -10,8 +10,23 @@ import {
 import React from "react";
 import "./filemenu.scss";
 import { Dropdown } from "react-bootstrap";
+import axios from "axios";
 
-const FileMenu = ({ counter, resetCounter }) => {
+const FileMenu = ({ selectedFileIds, counter, resetCounter }) => {
+  const handleDelete = async () => {
+    axios
+      .delete("http://localhost:3001/delete", {
+        data: {
+          ids: [selectedFileIds],
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("Error deleting files:", error);
+      });
+  };
   return (
     <div className="file-menu-row">
       <X
@@ -29,31 +44,32 @@ const FileMenu = ({ counter, resetCounter }) => {
           className="file-menu-icon"
           weight="bold"
           size={18}
-          style={{ margin: "0 5px", color: "#444746" }}
+          style={{ margin: "0 5px", color: "#444746", cursor: "pointer" }}
         />
         <DownloadSimple
           className="file-menu-icon"
           weight="bold"
           size={18}
-          style={{ margin: "0 5px", color: "#444746" }}
+          style={{ margin: "0 5px", color: "#444746", cursor: "pointer" }}
         />
         <FolderSimple
           className="file-menu-icon"
           weight="bold"
           size={18}
-          style={{ margin: "0 5px", color: "#444746" }}
+          style={{ margin: "0 5px", color: "#444746", cursor: "pointer" }}
         />
         <Trash
           className="file-menu-icon"
           weight="bold"
           size={18}
-          style={{ margin: "0 5px", color: "#444746" }}
+          onClick={handleDelete}
+          style={{ margin: "0 5px", color: "#444746", cursor: "pointer" }}
         />
         <LinkSimpleHorizontal
           className="file-menu-icon"
           weight="bold"
           size={20}
-          style={{ margin: "0 5px", color: "#444746" }}
+          style={{ margin: "0 5px", color: "#444746", cursor: "pointer" }}
         />
         <Dropdown className="d-inline ">
           <Dropdown.Toggle className="dropdown-autoclose-true custom-kebab">
@@ -61,7 +77,7 @@ const FileMenu = ({ counter, resetCounter }) => {
               className="file-menu-icon"
               weight="bold"
               size={20}
-              style={{ margin: "0 5px", color: "#444746" }}
+              style={{ margin: "0 5px", color: "#444746", cursor: "pointer" }}
             />
           </Dropdown.Toggle>
 

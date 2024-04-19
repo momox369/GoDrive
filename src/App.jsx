@@ -8,40 +8,47 @@ import Starred from "./pages/Starred/Starred";
 import Trash from "./pages/Trash/Trash";
 import Drive from "./pages/Drive/Drive";
 import { ViewModeProvider } from "./components/ViewModeController";
+import FullScreenDropzone from "./components/FileUpload";
+import { FileProvider } from "./components/FileController";
 
 const App = () => (
   <BrowserRouter>
     <ViewModeProvider>
-      <div
-        style={{
-          backgroundColor: "#f7fafd",
-          paddingTop: "0.5em",
-          height: "100vh",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div className="d-flex" style={{ overflow: "hidden" }}>
-          <Sidebar style={{ flexShrink: 0, overflowY: "auto" }} />
+      <FileProvider>
+        <div
+          style={{
+            backgroundColor: "#f7fafd",
+            paddingTop: "0.5em",
+            height: "100vh",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div className="d-flex" style={{ flex: 1, overflow: "hidden" }}>
+            <Sidebar style={{ flexShrink: 0, overflowY: "auto" }} />
 
-          <main
-            style={{
-              flex: 4,
-              overflowY: "auto",
-              marginRight: "1.3em",
-            }}
-          >
-            <TopNavigationBar />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/drive" element={<Drive />} />
-              <Route path="/shared" element={<Shared />} />
-              <Route path="/starred" element={<Starred />} />
-              <Route path="/trash" element={<Trash />} />
-            </Routes>
-          </main>
+            <main
+              style={{
+                flex: 4,
+                overflowY: "hidden",
+                marginRight: "1.3em",
+                position: "relative",
+              }}
+            >
+              <TopNavigationBar />
+              <FullScreenDropzone>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/drive" element={<Drive />} />
+                  <Route path="/shared" element={<Shared />} />
+                  <Route path="/starred" element={<Starred />} />
+                  <Route path="/trash" element={<Trash />} />
+                </Routes>
+              </FullScreenDropzone>
+            </main>
+          </div>
         </div>
-      </div>
+      </FileProvider>
     </ViewModeProvider>
   </BrowserRouter>
 );
