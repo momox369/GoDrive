@@ -2,14 +2,31 @@ import { CloudArrowUp } from "@phosphor-icons/react";
 import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
+import { useFiles } from "./FileController";
 
 const FullScreenDropzone = ({ children, onFilesUploaded }) => {
   const [isDragActive, setIsDragActive] = useState(false);
+  const { uploadFile } = useFiles();
 
   const { getRootProps, getInputProps } = useDropzone({
-    onDrop: (acceptedFiles) => {
+    onDrop: async (acceptedFiles) => {
       setIsDragActive(false);
-      uploadFiles(acceptedFiles);
+      const file = acceptedFiles[0];
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await axios.post(
+          "http://localhost:3001/upload",
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+        uploadFile(response.data);
+      } catch (error) {
+        console.error("Error uploading file:", error);
+      }
     },
     onDragOver: (event) => {
       event.preventDefault();
@@ -19,28 +36,6 @@ const FullScreenDropzone = ({ children, onFilesUploaded }) => {
     noClick: true,
     noKeyboard: true,
   });
-
-  const uploadFiles = async (acceptedFiles) => {
-    const file = acceptedFiles[0];
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const response = await axios.post(
-        "http://localhost:3001/upload",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-      console.log("File uploaded successfully: ", response.data);
-      if (onFilesUploaded) {
-        onFilesUploaded(response.data); 
-      }
-    } catch (error) {
-      console.error("Error uploading file:", error);
-    }
-  };
 
   return (
     <div {...getRootProps()} style={{ width: "100%", height: "100%" }}>
@@ -53,7 +48,7 @@ const FullScreenDropzone = ({ children, onFilesUploaded }) => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(255,255, 255, 0.5)",
+            backgroundColor: "rgba(255,255,255,0.5)",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -61,7 +56,7 @@ const FullScreenDropzone = ({ children, onFilesUploaded }) => {
             zIndex: 9999,
           }}
         >
-          <CloudArrowUp size={150} color="blue"></CloudArrowUp>
+          <CloudArrowUp size={150} color="blue" />
           <h3>Drop the files here...</h3>
         </div>
       )}

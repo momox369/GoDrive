@@ -35,16 +35,18 @@ function Home() {
     setActiveFilters(newFilters);
   };
 
-  useEffect(() => {}, [selectedFiles, activeFilters]);
-
+  const handleFilesDeleted = (deletedIds) => {
+    const remainingFiles = selectedFiles.filter(
+      (file) => !deletedIds.includes(file.id)
+    );
+    setSelectedFiles(remainingFiles);
+    console.log("Updated selectedFiles:", remainingFiles);
+  };
   const resetCounter = () => {
     setSelectedFiles([]);
   };
-
-  useEffect(() => {}, [selectedFiles]);
-
   const fileIds = selectedFiles.map((file) => file.id);
-
+  useEffect(() => {}, [selectedFiles, activeFilters]);
   return (
     <div className="content">
       <StaticHeader title={"Welcome to GoDrive"} />
@@ -53,6 +55,7 @@ function Home() {
           selectedFileIds={fileIds}
           counter={selectedFiles.length}
           resetCounter={resetCounter}
+          onFilesDeleted={handleFilesDeleted}
         />
       ) : (
         <FilterBar

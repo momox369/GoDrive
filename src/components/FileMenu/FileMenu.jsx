@@ -11,22 +11,20 @@ import React from "react";
 import "./filemenu.scss";
 import { Dropdown } from "react-bootstrap";
 import axios from "axios";
+import { useFiles } from "../FileController";
 
 const FileMenu = ({ selectedFileIds, counter, resetCounter }) => {
+  const { deleteFiles } = useFiles();
+
   const handleDelete = async () => {
-    axios
-      .delete("http://localhost:3001/delete", {
-        data: {
-          ids: [selectedFileIds],
-        },
-      })
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.error("Error deleting files:", error);
-      });
+    try {
+      await deleteFiles(selectedFileIds);
+      resetCounter();
+    } catch (error) {
+      console.error("Error deleting files:", error);
+    }
   };
+
   return (
     <div className="file-menu-row">
       <X

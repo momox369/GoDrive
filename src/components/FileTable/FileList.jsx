@@ -10,13 +10,9 @@ const FileList = ({ onFileSelect, selectedFiles }) => {
     fetchFiles();
   }, [fetchFiles]);
 
-  const handleFileSelect = (selected) => {
-    onFileSelect(selected);
-  };
-
   return (
     <FileTable
-      onFileSelect={handleFileSelect}
+      onFileSelect={onFileSelect}
       selectedFiles={selectedFiles}
       files={files}
     />
