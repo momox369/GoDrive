@@ -10,8 +10,9 @@ import Drive from "./pages/Drive/Drive";
 import { ViewModeProvider } from "./components/ViewModeController";
 import FullScreenDropzone from "./components/FileUpload";
 import { FileProvider } from "./components/FileController";
-import SignIn from './pages/SignIn/SignIn';
+import SignIn from "./pages/SignIn/SignIn";
 import SignUp from "./pages/SignUp/SignUp";
+import "../src/app.css";
 
 const App = () => (
   <BrowserRouter>

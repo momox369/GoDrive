@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import "./home.scss";
 import StaticHeader from "../../components/StaticHeader/StaticHeader";
 import FilterBar from "../../components/FIlterBar/FilterBar";
-import FileTable from "../../components/FileTable/FileTable";
 import FileMenu from "../../components/FileMenu/FileMenu";
 import FileList from "../../components/FileTable/FileList";
 
@@ -35,13 +34,7 @@ function Home() {
     setActiveFilters(newFilters);
   };
 
-  const handleFilesDeleted = (deletedIds) => {
-    const remainingFiles = selectedFiles.filter(
-      (file) => !deletedIds.includes(file.id)
-    );
-    setSelectedFiles(remainingFiles);
-    console.log("Updated selectedFiles:", remainingFiles);
-  };
+
   const resetCounter = () => {
     setSelectedFiles([]);
   };
@@ -53,9 +46,10 @@ function Home() {
       {selectedFiles.length > 0 ? (
         <FileMenu
           selectedFileIds={fileIds}
+          selectedFiles={selectedFiles}
           counter={selectedFiles.length}
           resetCounter={resetCounter}
-          onFilesDeleted={handleFilesDeleted}
+         
         />
       ) : (
         <FilterBar

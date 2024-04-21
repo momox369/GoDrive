@@ -21,7 +21,7 @@ export const FileProvider = ({ children }) => {
   const deleteFiles = useCallback(
     async (fileIds) => {
       try {
-        await axios.delete("http://localhost:3001/delete", {
+        const response = await axios.delete("http://localhost:3001/delete", {
           data: { ids: fileIds },
         });
         const updatedFiles = files.filter((file) => !fileIds.includes(file.id));
@@ -32,13 +32,15 @@ export const FileProvider = ({ children }) => {
     },
     [files]
   );
- const uploadFile = useCallback((newFile) => {
-   setFiles((prevFiles) => [...prevFiles, newFile]);
- }, []);
+  const uploadFile = useCallback((newFile) => {
+    setFiles((prevFiles) => [...prevFiles, newFile]);
+  }, []);
 
- return (
-   <FileContext.Provider value={{ files, fetchFiles, deleteFiles, uploadFile }}>
-     {children}
-   </FileContext.Provider>
- );
+  return (
+    <FileContext.Provider
+      value={{ files, fetchFiles, deleteFiles, uploadFile }}
+    >
+      {children}
+    </FileContext.Provider>
+  );
 };

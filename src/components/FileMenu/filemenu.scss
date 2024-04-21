@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: start;
   background-color: #f0f4f8;
-  padding: 0.5rem;
+  padding: 0.2rem;
   border-radius: 20px;
   margin-top: 1rem;
 }
@@ -15,17 +15,32 @@
 }
 
 .custom-kebab {
-  background-color: #f0f4f8;
+  background-color: transparent;
   border: none;
   padding: 0px;
   display: flex;
   align-items: center;
-  &:hover,
-  &:active {
-    background-color: #f0f4f8;
+  &:hover {
+    background-color: #ebebeb;
     border: none;
+  }
+  &:active,
+  &:focus {
+    background-color: transparent !important;
   }
   &::after {
     display: none;
+  }
+}
+.menu-icons {
+  background-color: #f0f4f8 !important;
+  color: #3b72d9 !important;
+  border: none !important;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  font-weight: 450;
+  &:hover {
+    background-color: #ebebeb !important;
   }
 }

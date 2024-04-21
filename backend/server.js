@@ -32,6 +32,9 @@ const fileSchema = new mongoose.Schema({
   size: Number,
   location: String,
   url: String,
+  reason: String,
+  owner: String,
+  type: { type: String, default: "file" },
 });
 
 const File = mongoose.model("File", fileSchema);
@@ -52,13 +55,20 @@ app.post(
   cors(corsOptions),
   upload.single("file"),
   async (req, res) => {
+    const isFolder = req.query.isFolder;
     const { filename, size } = req.file;
+    const uploadDate = new Date().toLocaleDateString();
+    const reason = `Uploaded on ${uploadDate}`;
+
     const fileMetadata = new File({
       id: uuidv4(),
       name: filename,
       size: size,
       location: `/uploads/${filename}`,
       url: `http://localhost:${PORT}/uploads/${filename}`,
+      reason: reason,
+      owner: "user@gmail.com",
+      type: isFolder ? "folder" : "file",
     });
 
     try {
@@ -71,14 +81,36 @@ app.post(
   }
 );
 
+app.post("/create-folder", cors(corsOptions), async (req, res) => {
+  const { folderName } = req.body;
+  const folderMetadata = new File({
+    id: uuidv4(),
+    name: folderName,
+    size: 0,
+    location: "",
+    url: "",
+    reason: "Folder created",
+    owner: "user@gmail.com",
+    type: "folder",
+  });
+
+  try {
+    await folderMetadata.save();
+    res.json(folderMetadata);
+  } catch (error) {
+    console.error("Error creating folder:", error);
+    res.status(500).send("Error creating folder");
+  }
+});
+
 app.delete("/delete", async (req, res) => {
   const { ids } = req.body;
   try {
     const deletePromises = ids.map(async (id) => {
-      const file = await File.findOne({ id: id }); 
+      const file = await File.findOne({ id: id });
       if (file) {
-        fs.unlinkSync(path.join(__dirname, file.location)); 
-        await File.deleteOne({ id: id }); 
+        fs.unlinkSync(path.join(__dirname, file.location));
+        await File.deleteOne({ id: id });
         return { id, status: "Deleted successfully" };
       }
       return { id, status: "File not found" };

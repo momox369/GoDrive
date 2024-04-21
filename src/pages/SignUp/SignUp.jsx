@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import './SignUp.scss'; // Assume similar styles to SignIn.scss
+import React, { useState } from "react";
+import "./SignUp.scss"; // Assume similar styles to SignIn.scss
 import logo from "../../assets/logo.png";
 
 const SignUp = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -18,7 +18,7 @@ const SignUp = () => {
     <div className="sign-in-container">
       <form onSubmit={handleSubmit}>
         <div className="left-panel">
-          <img src={logo} alt="GoDrive logo" className="logo" id='signuplogo' />
+          <img src={logo} alt="GoDrive logo" className="logo" id="signuplogo" />
           <h1>Sign Up</h1>
         </div>
         <div className="right-panel">
@@ -66,7 +66,9 @@ const SignUp = () => {
               required
             />
           </div>
-          <button type="submit">Sign Up</button>
+          <button className="sign-btn" type="submit">
+            Sign Up
+          </button>
         </div>
       </form>
     </div>

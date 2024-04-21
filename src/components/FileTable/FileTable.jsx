@@ -60,6 +60,7 @@ const FileTable = ({ onFileSelect, selectedFiles, files }) => {
             onClick={() => handleFileClick(file)}
           >
             <td
+              id="name"
               className={
                 selectedFiles.some((f) => f.id === file.id)
                   ? "selected-file"

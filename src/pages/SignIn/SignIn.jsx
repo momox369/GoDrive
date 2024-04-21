@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import './SignIn.scss';  // Using SCSS for styles
-import logo from "../../assets/logo.png";  // Importing logo from assets
+import React, { useState } from "react";
+import "./SignIn.scss";
+import logo from "../../assets/logo.png"; 
 
 const SignIn = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = (event) => {
@@ -14,14 +14,13 @@ const SignIn = () => {
 
   const handleSignUp = () => {
     console.log("Redirect to Sign Up");
-    // Implement redirection or modal for sign up here
   };
 
   return (
     <div className="sign-in-container">
       <form onSubmit={handleSubmit}>
         <div className="left-panel">
-          <img src={logo} alt="GoDrive logo" className="logo" id='signinlogo' />
+          <img src={logo} alt="GoDrive logo" className="logo" id="signinlogo" />
           <h1>Sign In</h1>
         </div>
         <div className="right-panel">
@@ -53,11 +52,16 @@ const SignIn = () => {
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-              /> Remember Me
+              />{" "}
+              Remember Me
             </label>
           </div>
-          <button type="submit">Sign In</button>
-          <button type="button" onClick={handleSignUp}>Sign Up</button>
+          <button id="signin-btn" type="submit">
+            Sign In
+          </button>
+          <button id="signup-btn" type="button" onClick={handleSignUp}>
+            Sign Up
+          </button>
         </div>
       </form>
     </div>
