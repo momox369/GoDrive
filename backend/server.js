@@ -68,7 +68,7 @@ app.post(
       url: `http://localhost:${PORT}/uploads/${filename}`,
       reason: reason,
       owner: "user@gmail.com",
-      type: isFolder ? "folder" : "file",
+      type: isFolder ? "folders" : "files",
     });
 
     try {
@@ -80,18 +80,44 @@ app.post(
     }
   }
 );
+app.post(
+  "/upload-folder",
+  cors(corsOptions),
+  upload.array("files"),
+  async (req, res) => {
+    req.files.forEach((file) => {
+      const fullPath = path.join(__dirname, "uploads", file.originalname);
+      const dir = path.dirname(fullPath);
+
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.renameSync(file.path, fullPath);
+    });
+
+    res.json({ message: "Files uploaded successfully" });
+  }
+);
 
 app.post("/create-folder", cors(corsOptions), async (req, res) => {
   const { folderName } = req.body;
+  const uploadDate = new Date().toLocaleDateString();
+  const reason = `Created on ${uploadDate}`;
+  const folderPath = path.join(__dirname, "uploads", folderName); // Construct the directory path
+
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath, { recursive: true }); // Ensure recursive is true to create directories within directories if needed
+  }
+
   const folderMetadata = new File({
     id: uuidv4(),
     name: folderName,
     size: 0,
-    location: "",
-    url: "",
-    reason: "Folder created",
+    location: `/uploads/${folderName}`,
+    url: `http://localhost:${PORT}/uploads/${folderName}`,
+    reason: reason,
     owner: "user@gmail.com",
-    type: "folder",
+    type: "folders",
   });
 
   try {
@@ -109,7 +135,26 @@ app.delete("/delete", async (req, res) => {
     const deletePromises = ids.map(async (id) => {
       const file = await File.findOne({ id: id });
       if (file) {
-        fs.unlinkSync(path.join(__dirname, file.location));
+        const filePath = path.join(
+          __dirname,
+          "uploads",
+          path.basename(file.location)
+        );
+        const uploadsDir = path.join(__dirname, "uploads");
+        if (!filePath.startsWith(uploadsDir)) {
+          console.error(
+            "Attempt to delete outside of uploads directory:",
+            filePath
+          );
+          return { id, status: "Deletion not allowed" };
+        }
+
+        if (fs.lstatSync(filePath).isDirectory()) {
+          fs.rmSync(filePath, { recursive: true, force: true });
+        } else {
+          fs.unlinkSync(filePath);
+        }
+
         await File.deleteOne({ id: id });
         return { id, status: "Deleted successfully" };
       }
@@ -126,8 +171,10 @@ app.delete("/delete", async (req, res) => {
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get("/files", async (req, res) => {
+  const { type } = req.query;
   try {
-    const files = await File.find();
+    const query = type ? { type: type } : {};
+    const files = await File.find(query);
     res.json(
       files.map((file) => ({
         id: file.id,
@@ -139,6 +186,7 @@ app.get("/files", async (req, res) => {
           "Uploaded on " +
           new Date(file._id.getTimestamp()).toLocaleDateString(),
         owner: "user@gmail.com",
+        type: file.type,
       }))
     );
   } catch (error) {
@@ -146,7 +194,30 @@ app.get("/files", async (req, res) => {
     res.status(500).send("Error retrieving files");
   }
 });
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+app.get("/filter", async (req, res) => {
+  const { type } = req.query;
+  try {
+    const query = type ? { type } : {};
+    const files = await File.find(query);
+    res.json(
+      files.map((file) => ({
+        id: file.id,
+        name: file.name,
+        size: file.size,
+        location: file.location,
+        url: file.url,
+        reason:
+          "Uploaded on " +
+          new Date(file._id.getTimestamp()).toLocaleDateString(),
+        owner: "user@gmail.com",
+        type: file.type,
+      }))
+    );
+  } catch (error) {
+    console.error("Error retrieving files:", error);
+    res.status(500).send("Error retrieving files");
+  }
 });

@@ -3,18 +3,22 @@ import React, { useEffect } from "react";
 import FileTable from "./FileTable";
 import { useFiles } from "../FileController";
 
-const FileList = ({ onFileSelect, selectedFiles }) => {
-  const { files, fetchFiles } = useFiles();
+const FileList = ({ onFileSelect, selectedFiles, selectedFolders, onFolderSelect }) => {
+  const { files, folders, fetchFilesAndFolders, filter } = useFiles();
 
   useEffect(() => {
-    fetchFiles();
-  }, [fetchFiles]);
+    fetchFilesAndFolders();
+    filter("files");
+  }, [fetchFilesAndFolders, filter]);
 
   return (
     <FileTable
       onFileSelect={onFileSelect}
+      onFolderSelect={onFolderSelect}
       selectedFiles={selectedFiles}
+      selectedFolders={selectedFolders}
       files={files}
+      folders={folders}
     />
   );
 };

@@ -14,28 +14,40 @@ import { useFiles } from "../FileController";
 
 const FileMenu = ({
   selectedFileIds,
-  counter,
+  selectedFolderIds,
+  fileCounter,
+  folderCounter,
   resetCounter,
   selectedFiles,
+  selectedFolders,
 }) => {
-  const { deleteFiles } = useFiles();
+  const { deleteFiles, fileType } = useFiles();
 
   const handleDelete = async () => {
-    try {
+    if (fileType === "files") {
       await deleteFiles(selectedFileIds);
-      resetCounter();
-    } catch (error) {
-      console.error("Error deleting files:", error);
+    } else {
+      await deleteFiles(selectedFolderIds);
     }
+    resetCounter();
   };
-  const handleDownload = () => {
-    selectedFiles.forEach((file) => {
-      const link = document.createElement("a");
-      link.href = file.url;
-      link.download = file.name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+
+  const handleDownload = async () => {
+    selectedFiles.forEach(async (file) => {
+      try {
+        const response = await fetch(file.url);
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = file.name;
+        document.body.appendChild(link);
+        link.click();
+        window.URL.revokeObjectURL(downloadUrl); // Clean up the URL object
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Failed to download file:", error);
+      }
     });
   };
   const copyToClipboard = async () => {
@@ -43,13 +55,24 @@ const FileMenu = ({
       console.error("Clipboard API not available");
       return;
     }
-    try {
-      await selectedFiles.forEach((file) => {
-        navigator.clipboard.writeText(file.url);
-        console.log("URL copied to clipboard:", file.url);
-      });
-    } catch (err) {
-      console.error("Failed to copy:", err);
+    if (fileType == "files") {
+      try {
+        await selectedFiles.forEach((file) => {
+          navigator.clipboard.writeText(file.url);
+          console.log("URL copied to clipboard:", file.url);
+        });
+      } catch (err) {
+        console.error("Failed to copy:", err);
+      }
+    } else {
+      try {
+        await selectedFolders.forEach((folder) => {
+          navigator.clipboard.writeText(folder.url);
+          console.log("URL copied to clipboard:", folder.url);
+        });
+      } catch (err) {
+        console.error("Failed to copy:", err);
+      }
     }
   };
   return (
@@ -65,9 +88,16 @@ const FileMenu = ({
         />
       </Button>
       <div className="part">
-        <span style={{ marginRight: "10px", color: "#444746" }}>
-          {counter} selected
-        </span>
+        {fileType === "files" && (
+          <span style={{ marginRight: "10px", color: "#444746" }}>
+            {fileCounter} selected
+          </span>
+        )}
+        {fileType === "folders" && (
+          <span style={{ marginRight: "10px", color: "#444746" }}>
+            {folderCounter} selected
+          </span>
+        )}
         <Button className="menu-icons">
           <UserPlus
             className="file-menu-icon"

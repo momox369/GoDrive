@@ -10,7 +10,7 @@ import axios from "axios";
 
 const New = () => {
   const [showModal, setShowModal] = useState(false);
-  const { uploadFile, fetchFiles } = useFiles();
+  const { uploadFile, fetchFilesAndFolders } = useFiles();
   const fileInputRef = useRef(null);
   const folderInputRef = useRef(null);
   const [folderName, setFolderName] = useState("");
@@ -21,7 +21,7 @@ const New = () => {
         folderName: folderName,
       });
       console.log(response.data);
-      fetchFiles(); 
+      fetchFilesAndFolders();
       handleCloseModal();
     } catch (error) {
       console.error("Error creating folder:", error);

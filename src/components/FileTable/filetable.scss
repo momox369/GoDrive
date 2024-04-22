@@ -45,7 +45,8 @@
   align-items: center;
 }
 
-.grid-item img, .grid-item embed {
+.grid-item img,
+.grid-item embed {
   width: 92%;
   height: 150px;
   object-fit: cover;
@@ -72,6 +73,16 @@ p {
   margin: 0px;
 }
 
-.selected-file {
+.grid-item.selected-file,
+.grid-folder-item.selected-file {
   background-color: #c1e7fe;
+  border-bottom-color: #c0e7fe;
+}
+.grid-folder-item {
+  background: #f0f4f8;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: 0.2rem 1rem 0.2rem 1rem;
 }

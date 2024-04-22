@@ -2,41 +2,82 @@ import React, { useEffect } from "react";
 import { Table } from "react-bootstrap";
 import "./filetable.scss";
 import { useViewMode } from "../ViewModeController";
+import { useFiles } from "../FileController";
+import { Folder } from "@phosphor-icons/react";
 
-const FileTable = ({ onFileSelect, selectedFiles, files }) => {
+const FileTable = ({
+  onFileSelect,
+  onFolderSelect,
+  selectedFiles,
+  selectedFolders,
+  files,
+  folders,
+}) => {
   const { viewMode } = useViewMode();
+  const { filterType } = useFiles();
 
-  useEffect(() => {}, [selectedFiles]);
+  const itemsToDisplay = filterType === "folders" ? folders : files;
+  const isSelected = filterType === "folders" ? selectedFolders : selectedFiles;
+  const handleSelect = filterType === "folders" ? onFolderSelect : onFileSelect;
 
-  const handleFileClick = (file) => {
-    const fileSelected = selectedFiles.some((f) => f.id === file.id);
-    if (fileSelected) {
-      onFileSelect(selectedFiles.filter((f) => f.id !== file.id));
+  const handleItemClick = (item) => {
+    const isCurrentlySelected = isSelected.some((f) => f.id === item.id);
+    if (isCurrentlySelected) {
+      handleSelect(isSelected.filter((f) => f.id !== item.id));
     } else {
-      onFileSelect([...selectedFiles, file]);
+      handleSelect([...isSelected, item]);
     }
   };
 
   const renderGridView = () => (
     <div className="grid-container">
-      {files.map((file) => (
+      {itemsToDisplay.map((item) => (
         <div
-          key={file.id} // Use file.id as key for stability
+          key={item.id}
           className={`grid-item ${
-            selectedFiles.some((f) => f.id === file.id) ? "selected-file" : ""
+            isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
           }`}
-          onClick={() => handleFileClick(file)}
+          onClick={() => handleItemClick(item)}
         >
           <div className="file-name">
-            <p>{file.name}</p>
+            <p>{item.name}</p>
           </div>
-          {file.name.endsWith(".pdf") ? (
-            <embed src={file.url} type="application/pdf" />
+          {item.type === "folders" ? (
+            <div className="file-name">
+              <Folder size={20} />
+              <p>{item.name}</p>
+            </div>
+          ) : item.name.endsWith(".pdf") ? (
+            <embed
+              src={item.url}
+              type="application/pdf"
+              width="100%"
+              height="100px"
+            />
           ) : (
-            <img src={file.url} alt="File preview" />
+            <img src={item.url} alt="File preview" />
           )}
           <div className="file-details">
-            <p>{file.reason}</p>
+            <p>{item.reason}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderGridFolderView = () => (
+    <div className="grid-container">
+      {itemsToDisplay.map((item) => (
+        <div
+          key={item.id}
+          className={`grid-folder-item ${
+            isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
+          }`}
+          onClick={() => handleItemClick(item)}
+        >
+          <Folder size={25} weight="fill" />
+          <div className="file-name">
+            <p>{item.name}</p>
           </div>
         </div>
       ))}
@@ -54,47 +95,41 @@ const FileTable = ({ onFileSelect, selectedFiles, files }) => {
         </tr>
       </thead>
       <tbody>
-        {files.map((file) => (
+        {itemsToDisplay.map((item) => (
           <tr
-            key={file.id} // Use file.id as key here too
-            onClick={() => handleFileClick(file)}
+            key={item.id}
+            onClick={() => handleItemClick(item)}
+            className={
+              isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
+            }
           >
             <td
-              id="name"
               className={
-                selectedFiles.some((f) => f.id === file.id)
-                  ? "selected-file"
-                  : ""
+                isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
               }
             >
-              {file.name}
+              {item.name}
             </td>
             <td
               className={
-                selectedFiles.some((f) => f.id === file.id)
-                  ? "selected-file"
-                  : ""
+                isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
               }
             >
-              {file.reason}
+              {item.reason}
             </td>
             <td
               className={
-                selectedFiles.some((f) => f.id === file.id)
-                  ? "selected-file"
-                  : ""
+                isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
               }
             >
-              {file.owner}
+              {item.owner}
             </td>
             <td
               className={
-                selectedFiles.some((f) => f.id === file.id)
-                  ? "selected-file"
-                  : ""
+                isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
               }
             >
-              {file.location}
+              {item.location}
             </td>
           </tr>
         ))}
@@ -104,7 +139,11 @@ const FileTable = ({ onFileSelect, selectedFiles, files }) => {
 
   return (
     <div style={{ maxHeight: "70vh", overflowY: "auto", marginTop: "1rem" }}>
-      {viewMode === "grid" ? renderGridView() : renderListView()}
+      {viewMode === "grid"
+        ? filterType === "files"
+          ? renderGridView()
+          : renderGridFolderView()
+        : renderListView()}
     </div>
   );
 };

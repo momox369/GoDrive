@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   ButtonGroup,
@@ -23,9 +23,10 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { FileText } from "react-bootstrap-icons";
+import { useFiles } from "../FileController";
 
-const FilterBar = ({ activeFilters, setActiveFilters }) => {
-  const [activeFilter, setActiveFilter] = useState("Files");
+const FilterBar = ({ activeFilters }) => {
+  const { filter, fileType } = useFiles();
   const [dropdownState, setDropdownState] = useState({
     type: {
       isSelected: false,
@@ -77,10 +78,11 @@ const FilterBar = ({ activeFilters, setActiveFilters }) => {
     setDropdownState({ ...dropdownState });
   };
   const handleToggle = (value) => {
-    setActiveFilter(value);
+    filter(value.toLowerCase());
   };
 
   const activeClass = "active-toggle";
+
   return (
     <div style={{ display: "flex", alignItems: "center", marginTop: "1em" }}>
       Suggested
@@ -88,15 +90,13 @@ const FilterBar = ({ activeFilters, setActiveFilters }) => {
         <OverlayTrigger placement="bottom" overlay={<Tooltip>Files</Tooltip>}>
           <ToggleButton
             type="checkbox"
-            variant={activeFilter === "Files" ? "primary" : "outline-primary"}
-            checked={activeFilter === "Files"}
-            value="Files"
-            className={`custom-pill ${
-              activeFilter === "Files" ? activeClass : ""
-            }`}
-            onClick={() => handleToggle("Files")}
+            variant={fileType === "files" ? "primary" : "outline-primary"}
+            checked={fileType === "files"}
+            value="files"
+            className={`custom-pill ${fileType === "files" ? activeClass : ""}`}
+            onClick={() => handleToggle("files")}
           >
-            {activeFilter === "Files" ? (
+            {fileType === "files" ? (
               <span>&#10003; </span>
             ) : (
               <FileText size={18} />
@@ -108,15 +108,15 @@ const FilterBar = ({ activeFilters, setActiveFilters }) => {
         <OverlayTrigger placement="bottom" overlay={<Tooltip>Folders</Tooltip>}>
           <ToggleButton
             type="checkbox"
-            variant={activeFilter === "Folders" ? "primary" : "outline-primary"}
-            checked={activeFilter === "Folders"}
-            value="Folders"
+            variant={fileType === "folders" ? "primary" : "outline-primary"}
+            checked={fileType === "folders"}
+            value="folders"
             className={`custom-pill ${
-              activeFilter === "Folders" ? activeClass : ""
+              fileType === "folders" ? activeClass : ""
             }`}
-            onClick={() => handleToggle("Folders")}
+            onClick={() => handleToggle("folders")}
           >
-            {activeFilter === "Folders" ? (
+            {fileType === "folders" ? (
               <span>&#10003; </span>
             ) : (
               <Folder size={18} />
