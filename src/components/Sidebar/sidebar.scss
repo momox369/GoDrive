@@ -1,0 +1,47 @@
+.custom-nav-pills {
+  .nav-link {
+    color: black;
+    font-weight: 400;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    transition: border-radius 0.3s ease;
+
+    &:hover {
+      color: black;
+      border-radius: 1rem !important;
+      background-color: rgb(228, 228, 228);
+    }
+  }
+
+  .nav-link.active {
+    background-color: #c1e7fe !important;
+    color: black !important;
+    border-radius: 1rem !important;
+  }
+}
+
+img {
+  height: 2em;
+}
+
+.container {
+  flex: 0.7;
+  padding: 1rem 3rem;
+  background-color: rgb(249, 251, 255);
+}
+.link-dark {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+
+  img {
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  h3 {
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+  }
+}

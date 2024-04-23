@@ -1,0 +1,60 @@
+{
+  "name": "godrive",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@google-cloud/storage": "^7.10.0",
+    "@mdbootstrap/react-dropdown-button": "^1.0.0",
+    "@phosphor-icons/react": "^2.1.4",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.6.8",
+    "bootstrap": "^5.3.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jszip": "^3.10.1",
+    "mdb-react-ui-kit": "^8.0.0",
+    "mongoose": "^8.3.2",
+    "multer": "^1.4.5-lts.1",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.10.2",
+    "react-bootstrap-icons": "^1.11.3",
+    "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.3",
+    "react-router-bootstrap": "^0.26.2",
+    "react-scripts": "5.0.1",
+    "sass": "^1.75.0",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "description": "End-of-class project: A web based clone for Google Drive",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

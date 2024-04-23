@@ -1,0 +1,13 @@
+#dropdown-settings {
+  background-color: rgb(249, 251, 255);
+  border: none;
+  color: black;
+
+  &:focus,
+  &:active {
+    background-color: rgb(249, 251, 255) !important;
+  }
+}
+.settings-dropdown::after {
+  display: none;
+}

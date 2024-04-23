@@ -1,0 +1,22 @@
+.custom-storage {
+  margin-top: 1rem;
+  &:hover {
+    background-color: #f7fafd !important;
+    cursor: pointer;
+  }
+}
+.progress,
+.progress-stacked {
+  height: 0.3rem !important;
+  margin: 0rem 1rem;
+}
+.progress-bar {
+  background-color: #0957d0 !important;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+#storage-caption {
+  margin: 0.3rem 1rem;
+  font-size: 0.9rem;
+  color: #7d8080;
+}

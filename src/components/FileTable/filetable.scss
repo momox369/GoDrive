@@ -1,0 +1,116 @@
+.table {
+  td {
+    padding: 0.8rem 0rem;
+    color: rgb(85, 85, 85);
+    font-weight: 200;
+  }
+  .selected-file {
+    background-color: #c1e7fe;
+    border-bottom-color: #c0e7fe;
+  }
+
+  th {
+    font-weight: normal;
+    font-size: 0.87rem;
+  }
+  tbody {
+    font-size: 0.85rem;
+
+    #name {
+      color: black;
+      font-weight: 400;
+      min-width: 40%;
+      padding-left: 1.5rem;
+      display: flex;
+      align-items: center;
+    }
+  }
+}
+
+.table > :not(caption) > * > * {
+  padding-left: 0px;
+}
+.grid-container {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20%, 1fr));
+  gap: 16px;
+}
+
+.grid-item {
+  background: #f0f4f8;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.grid-item img,
+.grid-item embed {
+  width: 92%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 3px;
+}
+.file-name {
+  padding: 8px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+.file-details {
+  padding: 8px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: rgb(112, 112, 112);
+}
+p {
+  margin: 0px;
+}
+
+.grid-item.selected-file,
+.grid-folder-item.selected-file {
+  background-color: #c1e7fe;
+  border-bottom-color: #c0e7fe;
+}
+.grid-folder-item {
+  background: #f0f4f8;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: 0.2rem 1rem 0.2rem 1rem;
+}
+.file-preview {
+  background-color: white;
+  width: 92%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .file-preview-icon {
+    width: 80%;
+    height: 5rem;
+  }
+}
+// filetable.scss
+/* filetable.scss */
+
+tr:hover .action-icons {
+  opacity: 1;
+  background-color: #adbdc7; /* icons become fully opaque on hover */
+}
+
+.action-icon {
+  cursor: pointer;
+  
+  margin-left: 8px; /* space between icons */
+}

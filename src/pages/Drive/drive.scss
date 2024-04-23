@@ -1,0 +1,14 @@
+.content.drive {
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  overflow-y: hidden;
+  .all-items {
+    overflow-y: auto;
+    margin-top: 2rem;
+    flex-grow: 1;
+    .all-items-folders {
+      margin-bottom: 1rem;
+    }
+  }
+}

@@ -1,0 +1,123 @@
+.sign-in-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.sign-in-form {
+  display: flex;
+  width: 25%;
+  padding: 2rem 2rem;
+  justify-content: center;
+  border: 0.5px solid #e6e6e6;
+  border-radius: 5px;
+  overflow: hidden; /* Keeps children within the border */
+}
+
+.left-panel {
+  background: #f8f9fa;
+  border-right: 1px solid #ccc;
+}
+
+.right-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#signinlogo {
+  width: 2rem;
+  height: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.input-group.password {
+  margin-bottom: 10px;
+}
+.input-group.email {
+  margin-top: 1.5rem;
+}
+
+.signin-boxes {
+  width: 100%;
+  display: block;
+  padding: 10px;
+  margin-top: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 7px !important;
+  transition: border 0.1s linear;
+  &:focus-within {
+    outline: none;
+    box-shadow: none;
+    border: solid 2px #3b72d9 !important;
+  }
+}
+
+#signin-btn,
+#signup-btn {
+  padding: 8px 10px !important; /* Smaller padding for smaller buttons */
+  font-size: 14px !important; /* Adjust font size if needed */
+  width: auto !important; /* Adjust width to content */
+  min-width: 100px !important; /* Ensuring buttons aren't too small */
+  margin-bottom: 10px !important; /* Space between buttons vertically if stacked */
+  border-radius: 5px;
+  border: none;
+  background-color: #0957d0;
+  color: white;
+}
+
+#signin-btn:hover,
+#sign-up-button:hover {
+  background-color: #0056b3 !important;
+}
+
+.input-group label {
+  display: flex;
+  align-items: center;
+}
+
+input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+// .sign-up-button {
+//   background-color: #28a745;
+//   &:hover {
+//     background-color: #1e6b34;
+//   }
+// }
+
+.title-signin {
+  h4 {
+    font-size: 0.9em;
+  }
+  h3 {
+    font-size: 1.5em;
+  }
+}
+.signin-btns {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+.signin-buttons {
+  background-color: white !important;
+  color: #3b72d9 !important;
+  border: none !important;
+  border-radius: 20px;
+  font-weight: 450;
+
+  &:hover {
+    background-color: #e7eefc !important;
+    color: #3b72d9 !important;
+  }
+}
+.signin-buttons.next {
+  border-radius: 5px;
+  padding: 0.5rem 2rem;
+  color: white !important;
+  background-color: #3b72d9 !important;
+}
