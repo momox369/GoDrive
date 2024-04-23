@@ -22,36 +22,22 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
   const [key, setKey] = useState("home");
 
   const {
-    deleteFiles,
     fileType,
     selectedFiles,
     fileCounter,
     folderCounter,
     resetCounter,
     selectedFolders,
-    starItem,
-    unstarItem,
+    trashedItems,
+    toggleTrash,
   } = useFiles();
 
-  const handleStarred = async () => {
-    if (fileType === "files") {
-      await starItem(selectedFileIds);
-    } else {
-      await starItem(selectedFolderIds);
-    }
-  };
-  const handleUnstarred = async () => {
-    if (fileType === "files") {
-      await unstarItem(selectedFileIds);
-    } else {
-      await unstarItem(selectedFolderIds);
-    }
-  };
   const handleDelete = async () => {
     if (fileType === "files") {
-      await deleteFiles(selectedFileIds);
+      await toggleTrash(selectedFileIds);
+      console.log(selectedFileIds);
     } else {
-      await deleteFiles(selectedFolderIds);
+      await toggleTrash(selectedFolderIds);
     }
     resetCounter();
   };

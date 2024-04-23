@@ -16,7 +16,8 @@ export const FileProvider = ({ children }) => {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
   const [fileType, setFileType] = useState();
-
+  const [starredItems, setStarredItems] = useState({ files: [], folders: [] });
+  const [trashedItems, setTrashedItems] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedFolders, setSelectedFolders] = useState([]);
   const fileIds = selectedFiles.map((file) => file.id);
@@ -61,15 +62,33 @@ export const FileProvider = ({ children }) => {
     }
   }, []);
 
+  const fetchStarredItems = useCallback(async () => {
+    try {
+      const filesResponse = await axios.get("http://localhost:3001/starred", {
+        params: { type: "files" },
+      });
+      const starredFiles = filesResponse.data;
+
+      const foldersResponse = await axios.get("http://localhost:3001/starred", {
+        params: { type: "folders" },
+      });
+      const starredFolders = foldersResponse.data;
+
+      setStarredItems({ files: starredFiles, folders: starredFolders });
+    } catch (error) {
+      console.error("Error fetching starred items:", error);
+      setStarredItems({ files: [], folders: [] }); // Reset on error
+    }
+  }, []);
+
   const filter = useCallback((type) => {
     setFilterType(type);
     setFileType(type);
   }, []);
 
   useEffect(() => {
-    fetchFilesAndFolders();
     filter("files");
-  }, [fetchFilesAndFolders, filter]);
+  }, [filter]);
 
   const handleFileSelect = (newSelectedFiles) => {
     setSelectedFiles(newSelectedFiles);
@@ -82,7 +101,6 @@ export const FileProvider = ({ children }) => {
   const deleteFiles = useCallback(
     async (fileIds) => {
       try {
-        console.log(fileIds);
         await axios.delete("http://localhost:3001/delete", {
           data: { ids: fileIds },
         });
@@ -93,17 +111,47 @@ export const FileProvider = ({ children }) => {
     },
     [fetchFilesAndFolders]
   );
-  const toggleStar = async (item) => {
+
+  const fetchTrashedItems = async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/trash");
+      setTrashedItems(response.data);
+    } catch (error) {
+      console.error("Error fetching trashed items:", error);
+    }
+  };
+  const toggleTrash = useCallback(
+    async (ids) => {
+      try {
+        const response = await axios.post(
+          "http://localhost:3001/toggle-trash",
+          { ids }
+        );
+        console.log("Trash toggled:", response.data);
+        fetchTrashedItems();
+      } catch (error) {
+        console.error("Error toggling trash status:", error);
+      }
+    },
+    [fetchTrashedItems]
+  );
+  useEffect(() => {
+    fetchFilesAndFolders();
+    fetchTrashedItems();
+    fetchStarredItems();
+  }, []);
+
+  const toggleStar = useCallback(async (item) => {
     try {
       const response = await axios.post("http://localhost:3001/toggle-star", {
         id: item.id,
       });
       console.log("Star toggled:", response.data);
-      // Optionally refresh the list or directly update the UI to reflect the change
+      fetchStarredItems();
     } catch (error) {
       console.error("Error toggling star:", error);
     }
-  };
+  });
   const uploadFile = useCallback((newFile) => {
     setFiles((prevFiles) => [...prevFiles, newFile]);
   }, []);
@@ -139,7 +187,6 @@ export const FileProvider = ({ children }) => {
       value={{
         files,
         folders,
-        deleteFiles,
         filter,
         filterType,
         fetchFilesAndFolders,
@@ -162,7 +209,12 @@ export const FileProvider = ({ children }) => {
         setSelectedFiles,
         setSelectedFolders,
         setActiveFilters,
+        starredItems,
         toggleStar,
+        trashedItems,
+        fetchTrashedItems,
+        toggleTrash,
+        deleteFiles,
       }}
     >
       {children}

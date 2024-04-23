@@ -17,6 +17,7 @@ function Drive() {
     filterType,
     itemsToDisplay,
     isSelected,
+    activeFilters,
     handleItemClick,
     folders,
     files,
@@ -44,7 +45,7 @@ function Drive() {
         {selectedFiles.length > 0 || selectedFolders.length > 0 ? (
           <FileMenu selectedFileIds={fileIds} selectedFolderIds={folderIds} />
         ) : (
-          <FilterBar />
+          <FilterBar activeFilters={activeFilters} />
         )}
         <div className="all-items">
           <div className="all-items-folders">

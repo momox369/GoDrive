@@ -36,6 +36,7 @@ const fileSchema = new mongoose.Schema({
   owner: { type: String, required: true },
   type: { type: String, default: "file" },
   isStarred: { type: Boolean, default: false },
+  isDeleted: { type: Boolean, default: false },
   sharedWith: [],
 });
 
@@ -175,7 +176,9 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get("/files", async (req, res) => {
   const { type } = req.query;
   try {
-    const query = type ? { type: type } : {};
+    const query = type
+      ? { type: type, isDeleted: false }
+      : { isDeleted: false };
     const files = await File.find(query);
     res.json(
       files.map((file) => ({
@@ -187,7 +190,7 @@ app.get("/files", async (req, res) => {
         reason:
           "Uploaded on " +
           new Date(file._id.getTimestamp()).toLocaleDateString(),
-        owner: "user@gmail.com",
+        owner: file.owner,
         type: file.type,
       }))
     );
@@ -196,6 +199,7 @@ app.get("/files", async (req, res) => {
     res.status(500).send("Error retrieving files");
   }
 });
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
@@ -223,37 +227,75 @@ app.get("/filter", async (req, res) => {
     res.status(500).send("Error retrieving files");
   }
 });
-app.post("/star", async (req, res) => {
-  const { id } = req.body;
-  try {
-    const file = await File.findByIdAndUpdate(
-      id,
-      { $set: { isStarred: true } },
-      { new: true }
-    );
-    if (file) {
-      res.status(200).json(file);
-    } else {
-      res.status(404).send("File not found");
-    }
-  } catch (error) {
-    console.error("Error updating star status:", error);
-    res.status(500).send("Failed to update star status");
-  }
-});
 
 app.post("/toggle-star", async (req, res) => {
   const { id } = req.body;
+
   try {
-    const file = await File.findById(id);
+    // Use findOne to search by your custom 'id' field instead of '_id'
+    const file = await File.findOne({ id: id });
     if (!file) {
       return res.status(404).send("File not found");
     }
-    file.isStarred = !file.isStarred; // Toggle the starred status
+    file.isStarred = !file.isStarred;
     await file.save();
     res.json({ message: "Starred status updated", starred: file.isStarred });
   } catch (error) {
     console.error("Failed to toggle starred status:", error);
     res.status(500).send("Failed to update starred status");
+  }
+});
+
+app.get("/starred", async (req, res) => {
+  const { type } = req.query; // Optional type filter
+  try {
+    const query = type ? { isStarred: true, type: type } : { isStarred: true };
+    const starredItems = await File.find(query);
+    res.json(starredItems);
+  } catch (error) {
+    console.error("Error fetching starred files/folders:", error);
+    res.status(500).send("Failed to fetch starred files/folders");
+  }
+});
+
+app.post("/toggle-trash", async (req, res) => {
+  const { ids } = req.body; // Expect an array of IDs
+
+  try {
+    const toggleTrashPromises = ids.map(async (id) => {
+      const file = await File.findOne({ id: id });
+      if (!file) {
+        return { id: id, status: "File not found" };
+      }
+      file.isDeleted = !file.isDeleted; // Toggle the isDeleted flag
+      await file.save();
+      return { id: id, status: file.isDeleted ? "Marked as deleted" : "Restored" };
+    });
+
+    const results = await Promise.all(toggleTrashPromises);
+    res.status(200).json(results);
+  } catch (error) {
+    console.error("Failed to toggle trash status:", error);
+    res.status(500).send({ message: "Failed to update trash status", error });
+  }
+});
+
+
+app.get("/trash", async (req, res) => {
+  try {
+    const trashedItems = await File.find({ isDeleted: true });
+    res.json(
+      trashedItems.map((file) => ({
+        id: file.id,
+        name: file.name,
+        type: file.type,
+        owner: file.owner,
+        location: file.location,
+        reason: file.reason,
+      }))
+    );
+  } catch (error) {
+    console.error("Error fetching trashed files/folders:", error);
+    res.status(500).send("Failed to fetch trashed files/folders");
   }
 });

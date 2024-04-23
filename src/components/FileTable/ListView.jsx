@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table } from "react-bootstrap";
 import {
   Folder,
@@ -13,7 +13,13 @@ import { useFiles } from "../FileController";
 
 const ListView = ({ items, isSelected, handleItemClick }) => {
   const [hoveredId, setHoveredId] = useState(null);
-  const [toggleStar] = useFiles();
+
+  const { toggleStar } = useFiles();
+  const handleStarClick = (e, item) => {
+    e.stopPropagation();
+    console.log(item);
+    toggleStar(item);
+  };
 
   return (
     <Table hover className="file-table">
@@ -80,14 +86,12 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
                   visibility: hoveredId === item.id ? "visible" : "hidden",
                 }}
               >
-                <DownloadSimple className="action-icon" />
-                <UserPlus className="action-icon" />
+                <DownloadSimple className="action-icon" size={20} />
+                <UserPlus className="action-icon" size={20} />
                 <Star
+                  size={20}
                   className="action-icon"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent the row onClick event
-                    toggleStar(item.id);
-                  }}
+                  onClick={(e) => handleStarClick(e, item)}
                 />
               </div>
             </td>
