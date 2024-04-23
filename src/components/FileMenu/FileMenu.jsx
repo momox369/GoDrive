@@ -12,16 +12,19 @@ import "./filemenu.scss";
 import { Button, Dropdown } from "react-bootstrap";
 import { useFiles } from "../FileController";
 
-const FileMenu = ({
-  selectedFileIds,
-  selectedFolderIds,
-  fileCounter,
-  folderCounter,
-  resetCounter,
-  selectedFiles,
-  selectedFolders,
-}) => {
-  const { deleteFiles, fileType } = useFiles();
+const FileMenu = () => {
+  const {
+    deleteFiles,
+    fileType,
+    selectedFiles,
+    selectedFileIds,
+    selectedFolderIds,
+    fileCounter,
+    folderCounter,
+    resetCounter,
+
+    selectedFolders,
+  } = useFiles();
 
   const handleDelete = async () => {
     if (fileType === "files") {
@@ -43,7 +46,7 @@ const FileMenu = ({
         link.download = file.name;
         document.body.appendChild(link);
         link.click();
-        window.URL.revokeObjectURL(downloadUrl); // Clean up the URL object
+        window.URL.revokeObjectURL(downloadUrl);
         document.body.removeChild(link);
       } catch (error) {
         console.error("Failed to download file:", error);

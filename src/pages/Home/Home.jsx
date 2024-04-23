@@ -12,8 +12,6 @@ import { useViewMode } from "../../components/ViewModeController";
 
 function Home() {
   const {
-    handleFileSelect,
-    handleFolderSelect,
     selectedFiles,
     selectedFolders,
     fileIds,
