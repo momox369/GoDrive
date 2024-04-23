@@ -10,7 +10,7 @@ export default function StaticHeader({ title }) {
 
   return (
     <div id="container">
-      <h4 style={{ fontWeight: "300" }}>{title}</h4>
+      <h4 className="static-header-title">{title}</h4>
       <div className="buttons">
         <ButtonGroup className="custom-toggle-btn">
           <OverlayTrigger

@@ -11,6 +11,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./filterbar.scss";
 import { File, Check } from "@phosphor-icons/react/dist/ssr";
 import {
+  CalendarBlank,
   CirclesThree,
   FileDoc,
   FilePdf,
@@ -20,10 +21,12 @@ import {
   Folder,
   HardDrives,
   MicrosoftWordLogo,
+  User,
   X,
 } from "@phosphor-icons/react";
 import { FileText } from "react-bootstrap-icons";
 import { useFiles } from "../FileController";
+import { useLocation } from "react-router-dom";
 
 const FilterBar = ({ activeFilters }) => {
   const { filter, fileType } = useFiles();
@@ -35,15 +38,18 @@ const FilterBar = ({ activeFilters }) => {
     },
     people: {
       isSelected: false,
+      icon: <User size={15} />,
       selectedTitle: "People",
-    },
-    location: {
-      isSelected: false,
-      selectedTitle: "Location",
     },
     modified: {
       isSelected: false,
+      icon: <CalendarBlank size={15} />,
       selectedTitle: "Modified",
+    },
+    location: {
+      isSelected: false,
+      icon: <Folder size={15} />,
+      selectedTitle: "Location",
     },
   });
 
@@ -82,53 +88,66 @@ const FilterBar = ({ activeFilters }) => {
   };
 
   const activeClass = "active-toggle";
+  const location = useLocation();
 
   return (
     <div style={{ display: "flex", alignItems: "center", marginTop: "1em" }}>
-      Suggested
-      <ButtonGroup style={{ width: "20%", marginLeft: "1rem" }}>
-        <OverlayTrigger placement="bottom" overlay={<Tooltip>Files</Tooltip>}>
-          <ToggleButton
-            type="checkbox"
-            variant={fileType === "files" ? "primary" : "outline-primary"}
-            checked={fileType === "files"}
-            value="files"
-            className={`custom-pill ${fileType === "files" ? activeClass : ""}`}
-            onClick={() => handleToggle("files")}
+      {location.pathname == "/home" ? <p>Suggested</p> : ""}
+      {location.pathname == "/home" ? (
+        <ButtonGroup style={{ width: "20%", marginLeft: "1rem" }}>
+          <OverlayTrigger placement="bottom" overlay={<Tooltip>Files</Tooltip>}>
+            <ToggleButton
+              type="checkbox"
+              variant={fileType === "files" ? "primary" : "outline-primary"}
+              checked={fileType === "files"}
+              value="files"
+              className={`custom-pill ${
+                fileType === "files" ? activeClass : ""
+              }`}
+              onClick={() => handleToggle("files")}
+            >
+              {fileType === "files" ? (
+                <Check size={20} />
+              ) : (
+                <FileText size={18} />
+              )}{" "}
+              Files
+            </ToggleButton>
+          </OverlayTrigger>
+          <OverlayTrigger
+            placement="bottom"
+            overlay={<Tooltip>Folders</Tooltip>}
           >
-            {fileType === "files" ? (
-              <span>&#10003; </span>
-            ) : (
-              <FileText size={18} />
-            )}{" "}
-            Files
-          </ToggleButton>
-        </OverlayTrigger>
-
-        <OverlayTrigger placement="bottom" overlay={<Tooltip>Folders</Tooltip>}>
-          <ToggleButton
-            type="checkbox"
-            variant={fileType === "folders" ? "primary" : "outline-primary"}
-            checked={fileType === "folders"}
-            value="folders"
-            className={`custom-pill ${
-              fileType === "folders" ? activeClass : ""
-            }`}
-            onClick={() => handleToggle("folders")}
-          >
-            {fileType === "folders" ? (
-              <span>&#10003; </span>
-            ) : (
-              <Folder size={18} />
-            )}{" "}
-            Folders
-          </ToggleButton>
-        </OverlayTrigger>
-      </ButtonGroup>
-      <div
-        className="vr"
-        style={{ height: "auto", marginLeft: "1rem", marginRight: "1rem" }}
-      ></div>
+            <ToggleButton
+              type="checkbox"
+              variant={fileType === "folders" ? "primary" : "outline-primary"}
+              checked={fileType === "folders"}
+              value="folders"
+              className={`custom-pill ${
+                fileType === "folders" ? activeClass : ""
+              }`}
+              onClick={() => handleToggle("folders")}
+            >
+              {fileType === "folders" ? (
+                <Check size={20} />
+              ) : (
+                <Folder size={18} />
+              )}{" "}
+              Folders
+            </ToggleButton>
+          </OverlayTrigger>
+        </ButtonGroup>
+      ) : (
+        ""
+      )}
+      {location.pathname == "/home" ? (
+        <div
+          className="vr"
+          style={{ height: "auto", marginLeft: "1rem", marginRight: "1rem" }}
+        ></div>
+      ) : (
+        ""
+      )}
       <Dropdown as={ButtonGroup} onSelect={handleSelect("type")}>
         {dropdownState.type.isSelected ? (
           <>
@@ -259,6 +278,7 @@ const FilterBar = ({ activeFilters }) => {
             id="dropdown-people"
             className="dropdown d-inline mx-2"
           >
+            {dropdownState.people.icon}
             {dropdownState.people.selectedTitle}
           </Dropdown.Toggle>
         )}
@@ -293,6 +313,7 @@ const FilterBar = ({ activeFilters }) => {
             id="dropdown-modified"
             className="dropdown d-inline mx-2"
           >
+            {dropdownState.modified.icon}
             {dropdownState.modified.selectedTitle}
           </Dropdown.Toggle>
         )}
@@ -327,6 +348,7 @@ const FilterBar = ({ activeFilters }) => {
             id="dropdown-location"
             className="dropdown d-inline mx-2"
           >
+            {dropdownState.location.icon}
             {dropdownState.location.selectedTitle}
           </Dropdown.Toggle>
         )}

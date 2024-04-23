@@ -1,12 +1,15 @@
 import React from "react";
 import "./starred.scss";
 import StaticHeader from "../../components/StaticHeader/StaticHeader";
+import DisplayPages from "../../DisplayPages";
 
 function Starred() {
   return (
-    <div className="content">
-      <StaticHeader title={"Starred"} />
-    </div>
+    <DisplayPages>
+      <div className="content">
+        <StaticHeader title={"Starred"} />
+      </div>
+    </DisplayPages>
   );
 }
 

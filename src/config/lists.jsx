@@ -52,7 +52,7 @@ export const NavItem = ({ children, to, icon: Icon }) => {
 
 export const navItems = [
   <New />,
-  <NavItem to="/" icon={House}>
+  <NavItem to="/home" icon={House}>
     Home
   </NavItem>,
   <NavItem icon={HardDrives} to="/drive">
