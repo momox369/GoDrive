@@ -7,24 +7,40 @@ import {
   UserPlus,
   X,
 } from "@phosphor-icons/react";
-import React from "react";
+import React, {useState} from "react";
 import "./filemenu.scss";
-import { Button, Dropdown } from "react-bootstrap";
+import {Button, Dropdown, Form} from "react-bootstrap";
 import { useFiles } from "../FileController";
+import Modal from "react-bootstrap/Modal";
 
 const FileMenu = () => {
   const {
     deleteFiles,
     fileType,
     selectedFiles,
-    selectedFileIds,
-    selectedFolderIds,
     fileCounter,
     folderCounter,
     resetCounter,
-
     selectedFolders,
+      shareFile
   } = useFiles();
+
+  const selectedFileIds = selectedFiles.map(file => file.id);
+  const selectedFolderIds = selectedFolders.map(folder => folder.id);
+  const [showModal, setShowModal] = useState(false);
+  const [email, setEmail] = useState("");
+
+  const handleShare = () => {
+    setShowModal(true);
+  };
+
+  const handleShareConfirm = () => {
+    // Call the shareFile function with the entered email
+    shareFile(selectedFileIds[0], email);
+    // Close the modal and reset the email state
+    setShowModal(false);
+    setEmail("");
+  };
 
   const handleDelete = async () => {
     if (fileType === "files") {
@@ -78,6 +94,8 @@ const FileMenu = () => {
       }
     }
   };
+
+
   return (
     <div className="file-menu-row">
       <Button className="menu-icons">
@@ -101,7 +119,7 @@ const FileMenu = () => {
             {folderCounter} selected
           </span>
         )}
-        <Button className="menu-icons">
+        <Button className="menu-icons" onClick={handleShare}>
           <UserPlus
             className="file-menu-icon"
             weight="bold"
@@ -143,6 +161,7 @@ const FileMenu = () => {
             style={{ margin: "0 5px", color: "#444746", cursor: "pointer" }}
           />
         </Button>
+
         <Button className="menu-icons">
           <Dropdown className="d-inline file-menu-icon">
             <Dropdown.Toggle className="dropdown-autoclose-true custom-kebab">
@@ -162,6 +181,37 @@ const FileMenu = () => {
           </Dropdown>
         </Button>
       </div>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Share File</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formBasicEmail">
+              <Form.Label>Email address</Form.Label>
+              <Form.Control
+                  type="email"
+                  placeholder="Enter email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+              />
+              <Form.Text className="text-muted">
+                We'll never share your email with anyone else.
+              </Form.Text>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleShareConfirm}>
+            Share File
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   );
 };

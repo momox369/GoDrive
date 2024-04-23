@@ -8,8 +8,9 @@ require("dotenv").config();
 const PORT = process.env.PORT || 3001;
 const app = express();
 const fs = require("fs");
-
+const {urlencoded} = require("express");
 app.use(express.json());
+app.use(urlencoded({ extended: true }));
 const corsOptions = {
   origin: "http://localhost:3000",
   methods: ["GET", "POST", "DELETE"],
@@ -33,7 +34,7 @@ const fileSchema = new mongoose.Schema({
   location: String,
   url: String,
   reason: String,
-  owner: String,
+  owner: [String],
   type: { type: String, default: "file" },
 });
 
@@ -51,35 +52,37 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 app.post(
-  "/upload",
-  cors(corsOptions),
-  upload.single("file"),
-  async (req, res) => {
-    const isFolder = req.query.isFolder;
-    const { filename, size } = req.file;
-    const uploadDate = new Date().toLocaleDateString();
-    const reason = `Uploaded on ${uploadDate}`;
+    "/upload",
+    cors(corsOptions),
+    upload.single("file"),
+    async (req, res) => {
+        const isFolder = req.query.isFolder;
+        const { filename, size } = req.file;
+        const uploadDate = new Date().toLocaleDateString();
+        const reason = `Uploaded on ${uploadDate}`;
 
-    const fileMetadata = new File({
-      id: uuidv4(),
-      name: filename,
-      size: size,
-      location: `/uploads/${filename}`,
-      url: `http://localhost:${PORT}/uploads/${filename}`,
-      reason: reason,
-      owner: "user@gmail.com",
-      type: isFolder ? "folders" : "files",
-    });
+        const fileMetadata = new File({
+            id: uuidv4(),
+            name: filename,
+            size: size,
+            location: `/uploads/${filename}`,
+            url: `http://localhost:${PORT}/uploads/${filename}`,
+            reason: reason,
+            owner: ["user@gmail.com"], // Initialize owner as an array
+            type: isFolder ? "folders" : "files",
+        });
 
-    try {
-      await fileMetadata.save();
-      res.json(fileMetadata);
-    } catch (error) {
-      console.error("Error saving file metadata:", error);
-      res.status(500).send("Error saving file metadata");
+        try {
+            await fileMetadata.save();
+            res.json(fileMetadata);
+        } catch (error) {
+            console.error("Error saving file metadata:", error);
+            res.status(500).send("Error saving file metadata");
+        }
     }
-  }
 );
+
+
 app.post(
   "/upload-folder",
   cors(corsOptions),
@@ -116,7 +119,7 @@ app.post("/create-folder", cors(corsOptions), async (req, res) => {
     location: `/uploads/${folderName}`,
     url: `http://localhost:${PORT}/uploads/${folderName}`,
     reason: reason,
-    owner: "user@gmail.com",
+    owner: ["user@gmail.com"],
     type: "folders",
   });
 
@@ -185,7 +188,7 @@ app.get("/files", async (req, res) => {
         reason:
           "Uploaded on " +
           new Date(file._id.getTimestamp()).toLocaleDateString(),
-        owner: "user@gmail.com",
+        owner: ["user@gmail.com"],
         type: file.type,
       }))
     );
@@ -194,9 +197,7 @@ app.get("/files", async (req, res) => {
     res.status(500).send("Error retrieving files");
   }
 });
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
 app.get("/filter", async (req, res) => {
   const { type } = req.query;
   try {
@@ -212,7 +213,7 @@ app.get("/filter", async (req, res) => {
         reason:
           "Uploaded on " +
           new Date(file._id.getTimestamp()).toLocaleDateString(),
-        owner: "user@gmail.com",
+        owner: ["user@gmail.com"],
         type: file.type,
       }))
     );
@@ -220,4 +221,32 @@ app.get("/filter", async (req, res) => {
     console.error("Error retrieving files:", error);
     res.status(500).send("Error retrieving files");
   }
+});
+
+//share file with someone: add a string username to the owner array
+app.post("/share", async (req, res) => {
+    console.log("Request body:", req.body);
+    const { id, username } = req.body;
+    try {
+        const file = await File.findOne({ id: id }).exec();
+        if (file) {
+            if (Array.isArray(file.owner)) {
+                file.owner.push(username); // Push new owner to owner array
+            } else {
+                file.owner = [username]; // Initialize owner as an array with username
+            }
+            await file.save();
+            res.json(file);
+            console.log("File shared with " + username);
+        } else {
+            res.status(404).send("File not found");
+        }
+    } catch (error) {
+        console.error("Error sharing file:", error);
+        res.status(500).send("Error sharing file");
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });

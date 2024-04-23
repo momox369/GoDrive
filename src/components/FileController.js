@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import axios from "axios";
 
+
 const FileContext = createContext();
 
 export const useFiles = () => useContext(FileContext);
@@ -98,6 +99,37 @@ export const FileProvider = ({ children }) => {
     setFiles((prevFiles) => [...prevFiles, newFile]);
   }, []);
 
+    useEffect(() => {
+        fetchFilesAndFolders();
+    }, [files]); // Add files as a dependency
+
+    const shareFile = useCallback(async (id, username) => {
+        try {
+            const response = await axios.post("http://localhost:3001/share", {
+                id,
+                username
+            });
+            if (response.status === 200) {
+                console.log("File shared successfully");
+                //print file owner list
+                console.log("\nFile owner list:", response.data.owner);
+                // Update the local state
+                setFiles((prevFiles) =>
+                    prevFiles.map((file) =>
+                        file.id === id ? { ...file, owner: [...file.owner, username]} : file
+                    )
+
+                );
+                fetchFilesAndFolders();
+            } else {
+                console.error("Error sharing file:", response.status);
+            }
+        } catch (error) {
+            console.error("Error sharing file:", error);
+        }
+    }, [fetchFilesAndFolders]);
+
+
   useEffect(() => {}, [selectedFiles, selectedFolders, activeFilters]);
   const resetCounter = () => {
     if (filterType === "files") {
@@ -149,7 +181,8 @@ export const FileProvider = ({ children }) => {
         handleItemClick,
         setSelectedFiles,
         setSelectedFolders,
-        setActiveFilters
+        setActiveFilters,
+        shareFile
       }}
     >
       {children}
