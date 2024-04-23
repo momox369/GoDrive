@@ -106,11 +106,12 @@ p {
 
 tr:hover .action-icons {
   opacity: 1;
-  background-color: #adbdc7; /* icons become fully opaque on hover */
+  background-color: inset 0 0 0 9999px
+    var(--bs-table-bg-state, var(--bs-table-bg-type, var(--bs-table-accent-bg))); /* icons become fully opaque on hover */
 }
 
 .action-icon {
   cursor: pointer;
-  
+
   margin-left: 8px; /* space between icons */
 }
