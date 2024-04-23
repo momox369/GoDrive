@@ -22,13 +22,15 @@ function Drive() {
     files,
     selectedFiles,
     selectedFolders,
+    fileIds,
+    folderIds,
     setSelectedFiles,
     setSelectedFolders,
     resetCounter,
   } = useFiles();
   const location = useLocation();
   const { viewMode, setViewMode } = useViewMode();
-  
+
   useEffect(() => {
     resetCounter();
     setViewMode("grid");
@@ -40,7 +42,7 @@ function Drive() {
       <div className="content drive">
         <StaticHeader title={"Drive"} />
         {selectedFiles.length > 0 || selectedFolders.length > 0 ? (
-          <FileMenu />
+          <FileMenu selectedFileIds={fileIds} selectedFolderIds={folderIds} />
         ) : (
           <FilterBar />
         )}

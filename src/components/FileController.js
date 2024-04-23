@@ -81,8 +81,8 @@ export const FileProvider = ({ children }) => {
 
   const deleteFiles = useCallback(
     async (fileIds) => {
-      console.log("Sending delete request for IDs:", fileIds);
       try {
+        console.log(fileIds);
         await axios.delete("http://localhost:3001/delete", {
           data: { ids: fileIds },
         });
@@ -93,12 +93,24 @@ export const FileProvider = ({ children }) => {
     },
     [fetchFilesAndFolders]
   );
-
+  const toggleStar = async (item) => {
+    try {
+      const response = await axios.post("http://localhost:3001/toggle-star", {
+        id: item.id,
+      });
+      console.log("Star toggled:", response.data);
+      // Optionally refresh the list or directly update the UI to reflect the change
+    } catch (error) {
+      console.error("Error toggling star:", error);
+    }
+  };
   const uploadFile = useCallback((newFile) => {
     setFiles((prevFiles) => [...prevFiles, newFile]);
   }, []);
 
-  useEffect(() => {}, [selectedFiles, selectedFolders, activeFilters]);
+  useEffect(() => {
+    fetchFilesAndFolders();
+  }, [fetchFilesAndFolders, selectedFiles, selectedFolders, activeFilters]);
   const resetCounter = () => {
     if (filterType === "files") {
       setSelectedFiles([]);
@@ -149,7 +161,8 @@ export const FileProvider = ({ children }) => {
         handleItemClick,
         setSelectedFiles,
         setSelectedFolders,
-        setActiveFilters
+        setActiveFilters,
+        toggleStar,
       }}
     >
       {children}

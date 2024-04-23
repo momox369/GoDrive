@@ -27,14 +27,16 @@ mongoose
   });
 
 const fileSchema = new mongoose.Schema({
-  id: { type: String },
-  name: String,
+  id: { type: String, required: true },
+  name: { type: String, required: true },
   size: Number,
-  location: String,
+  location: { type: String, required: true },
   url: String,
   reason: String,
-  owner: String,
+  owner: { type: String, required: true },
   type: { type: String, default: "file" },
+  isStarred: { type: Boolean, default: false },
+  sharedWith: [],
 });
 
 const File = mongoose.model("File", fileSchema);
@@ -219,5 +221,39 @@ app.get("/filter", async (req, res) => {
   } catch (error) {
     console.error("Error retrieving files:", error);
     res.status(500).send("Error retrieving files");
+  }
+});
+app.post("/star", async (req, res) => {
+  const { id } = req.body;
+  try {
+    const file = await File.findByIdAndUpdate(
+      id,
+      { $set: { isStarred: true } },
+      { new: true }
+    );
+    if (file) {
+      res.status(200).json(file);
+    } else {
+      res.status(404).send("File not found");
+    }
+  } catch (error) {
+    console.error("Error updating star status:", error);
+    res.status(500).send("Failed to update star status");
+  }
+});
+
+app.post("/toggle-star", async (req, res) => {
+  const { id } = req.body;
+  try {
+    const file = await File.findById(id);
+    if (!file) {
+      return res.status(404).send("File not found");
+    }
+    file.isStarred = !file.isStarred; // Toggle the starred status
+    await file.save();
+    res.json({ message: "Starred status updated", starred: file.isStarred });
+  } catch (error) {
+    console.error("Failed to toggle starred status:", error);
+    res.status(500).send("Failed to update starred status");
   }
 });

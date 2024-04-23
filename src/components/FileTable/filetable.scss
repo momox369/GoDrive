@@ -3,7 +3,6 @@
     padding: 0.8rem 0rem;
     color: rgb(85, 85, 85);
     font-weight: 200;
-   
   }
   .selected-file {
     background-color: #c1e7fe;
@@ -103,3 +102,14 @@ p {
   }
 }
 // filetable.scss
+/* filetable.scss */
+
+tr:hover .action-icons {
+  opacity: 1;
+  background-color: #adbdc7; /* icons become fully opaque on hover */
+}
+
+.action-icon {
+  cursor: pointer;
+  margin-left: 8px; /* space between icons */
+}
