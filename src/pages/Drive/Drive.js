@@ -46,7 +46,7 @@ function Drive() {
   return (
     <DisplayPages>
       <div className="content drive">
-        <StaticHeader title={"Drive"} />
+        <StaticHeader title={"My Drive"} />
         {selectedFiles.length > 0 || selectedFolders.length > 0 ? (
           <FileMenu />
         ) : (
