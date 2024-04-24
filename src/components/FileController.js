@@ -77,9 +77,9 @@ export const FileProvider = ({ children }) => {
       setStarredItems({ files: starredFiles, folders: starredFolders });
     } catch (error) {
       console.error("Error fetching starred items:", error);
-      setStarredItems({ files: [], folders: [] }); // Reset on error
+      setStarredItems({ files: [], folders: [] });
     }
-  }, []);
+  }, [starredItems]);
 
   const filter = useCallback((type) => {
     setFilterType(type);
@@ -141,17 +141,56 @@ export const FileProvider = ({ children }) => {
     fetchStarredItems();
   }, []);
 
-  const toggleStar = useCallback(async (item) => {
-    try {
-      const response = await axios.post("http://localhost:3001/toggle-star", {
-        id: item.id,
-      });
-      console.log("Star toggled:", response.data);
-      fetchStarredItems();
-    } catch (error) {
-      console.error("Error toggling star:", error);
-    }
-  });
+  const toggleStar = useCallback(
+    async (item) => {
+      try {
+        const response = await axios.post("http://localhost:3001/toggle-star", {
+          id: item.id,
+        });
+
+        console.log("Star toggled:", response.data);
+
+        setStarredItems((prevItems) => {
+          const updatedItems = { ...prevItems };
+          const index = updatedItems[item.type].indexOf(item.id);
+
+          if (response.data.starred) {
+            if (index === -1) updatedItems[item.type].push(item.id);
+          } else {
+            if (index !== -1) updatedItems[item.type].splice(index, 1);
+          }
+
+          return updatedItems;
+        });
+
+        fetchStarredItems();
+      } catch (error) {
+        console.error("Error toggling star:", error);
+      }
+    },
+    [fetchStarredItems]
+  );
+  const shareFile = useCallback(
+    async (id, username) => {
+      try {
+        const response = await axios.post("http://localhost:3001/share", {
+          id,
+          username,
+        });
+        if (response.status === 200) {
+          console.log("File shared successfully");
+          // Optionally fetch updated file data or adjust state locally
+          fetchFilesAndFolders(); // Refresh data if needed or handle state update locally
+        } else {
+          console.error("Error sharing file:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error sharing file:", error);
+      }
+    },
+    [fetchFilesAndFolders]
+  );
+
   const uploadFile = useCallback((newFile) => {
     setFiles((prevFiles) => [...prevFiles, newFile]);
   }, []);
@@ -215,6 +254,8 @@ export const FileProvider = ({ children }) => {
         fetchTrashedItems,
         toggleTrash,
         deleteFiles,
+        setStarredItems,
+        shareFile,
       }}
     >
       {children}

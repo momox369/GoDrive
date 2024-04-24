@@ -33,7 +33,7 @@ const fileSchema = new mongoose.Schema({
   location: { type: String, required: true },
   url: String,
   reason: String,
-  owner: { type: String, required: true },
+  owner: [{ type: String, required: true }],
   type: { type: String, default: "file" },
   isStarred: { type: Boolean, default: false },
   isDeleted: { type: Boolean, default: false },
@@ -269,7 +269,10 @@ app.post("/toggle-trash", async (req, res) => {
       }
       file.isDeleted = !file.isDeleted; // Toggle the isDeleted flag
       await file.save();
-      return { id: id, status: file.isDeleted ? "Marked as deleted" : "Restored" };
+      return {
+        id: id,
+        status: file.isDeleted ? "Marked as deleted" : "Restored",
+      };
     });
 
     const results = await Promise.all(toggleTrashPromises);
@@ -279,7 +282,6 @@ app.post("/toggle-trash", async (req, res) => {
     res.status(500).send({ message: "Failed to update trash status", error });
   }
 });
-
 
 app.get("/trash", async (req, res) => {
   try {
@@ -297,5 +299,61 @@ app.get("/trash", async (req, res) => {
   } catch (error) {
     console.error("Error fetching trashed files/folders:", error);
     res.status(500).send("Failed to fetch trashed files/folders");
+  }
+});
+app.post("/share", async (req, res) => {
+  const { id, username } = req.body;
+  try {
+    const file = await File.findOne({ id: id });
+    if (!file) {
+      return res.status(404).send("File not found");
+    }
+    // Ensure not to add the username if it already exists
+    if (!file.owner.includes(username)) {
+      file.owner.push(username);
+      await file.save();
+      console.log(`File shared with ${username}`);
+    }
+    res.json(file);
+  } catch (error) {
+    console.error("Error sharing file:", error);
+    res.status(500).send("Error sharing file");
+  }
+});
+// Update file name endpoint
+app.post("/update-filename", async (req, res) => {
+  const { id, newName } = req.body;
+
+  if (!id || !newName) {
+    return res.status(400).send("File ID and new name are required.");
+  }
+
+  try {
+    const file = await File.findOne({ id: id });
+    if (!file) {
+      return res.status(404).send("File not found");
+    }
+
+    file.name = newName; // Update the name
+    await file.save(); // Save the updated file
+    res.status(200).json({ message: "File name updated successfully", file });
+  } catch (error) {
+    console.error("Failed to update file name:", error);
+    res.status(500).send("Error updating file name");
+  }
+});
+app.get("/folder/:id", async (req, res) => {
+  const folderId = req.params.id;
+
+  try {
+    // Assuming you have a function to find files by their folder ID
+    const files = await File.find({
+      parentFolderId: folderId,
+      isDeleted: false,
+    });
+    res.json(files);
+  } catch (error) {
+    console.error("Error retrieving folder contents:", error);
+    res.status(500).send("Error retrieving data");
   }
 });

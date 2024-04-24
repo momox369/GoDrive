@@ -110,8 +110,16 @@ tr:hover .action-icons {
     var(--bs-table-bg-state, var(--bs-table-bg-type, var(--bs-table-accent-bg))); /* icons become fully opaque on hover */
 }
 
+.action-icons {
+  display: flex !important;
+  justify-content: end !important;
+}
+
 .action-icon {
   cursor: pointer;
-
-  margin-left: 8px; /* space between icons */
+  margin-right: 1rem; /* space between icons */
+}
+#buttons-list {
+  display: flex;
+  justify-content: end;
 }

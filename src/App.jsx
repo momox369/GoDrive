@@ -15,6 +15,7 @@ import SignUp from "./pages/SignUp/SignUp";
 import "../src/app.css";
 import DisplayPages from "./DisplayPages";
 import SignInPass from "./pages/SignIn/SignInpass";
+import FolderContents from "./components/FolderContent";
 
 const App = () => (
   <BrowserRouter>
@@ -30,6 +31,10 @@ const App = () => (
           <Route path="/starred" element={<Starred />} />
           <Route path="/trash" element={<Trash />} />
           <Route path="/display" element={<DisplayPages />} />
+          <Route
+            path="/folder/:folderId"
+            component={<FolderContents></FolderContents>}
+          />
         </Routes>
       </FileProvider>
     </ViewModeProvider>
