@@ -19,9 +19,9 @@ import { AuthProvider } from "./components/AuthProvider";
 
 const App = () => (
   <BrowserRouter>
-    <ViewModeProvider>
-      <AuthProvider>
-        <FileProvider>
+    <FileProvider>
+      <ViewModeProvider>
+        <AuthProvider>
           <Routes>
             <Route path="/" element={<SignIn />} />
             <Route path="/loginpass" element={<SignInPass />} />
@@ -33,9 +33,9 @@ const App = () => (
             <Route path="/trash" element={<Trash />} />
             <Route path="/display" element={<DisplayPages />} />
           </Routes>
-        </FileProvider>
-      </AuthProvider>
-    </ViewModeProvider>
+        </AuthProvider>
+      </ViewModeProvider>
+    </FileProvider>
   </BrowserRouter>
 );
 

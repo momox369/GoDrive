@@ -225,10 +225,12 @@ app.post(
       owner: req.session.user.username,
       type: isFolder ? "folders" : "files",
     });
-
     try {
       await fileMetadata.save();
-      res.json(fileMetadata);
+      res.json({
+        ...fileMetadata.toObject(),
+        _id: fileMetadata._id.toString(),
+      });
     } catch (error) {
       console.error("Error saving file metadata:", error);
       res.status(500).send("Error saving file metadata");
@@ -284,10 +286,11 @@ app.post("/create-folder", cors(corsOptions), async (req, res) => {
 });
 
 app.delete("/delete", async (req, res) => {
-  const { ids } = req.body;
+  const { ids } = req.body; // These should be MongoDB '_id's
   try {
-    const deletePromises = ids.map(async (id) => {
-      const file = await File.findOne({ id: id });
+    const deletePromises = ids.map(async (_id) => {
+      const file = await File.findById(_id);
+      console.log(file);
       if (file) {
         const filePath = path.join(
           __dirname,
@@ -300,19 +303,17 @@ app.delete("/delete", async (req, res) => {
             "Attempt to delete outside of uploads directory:",
             filePath
           );
-          return { id, status: "Deletion not allowed" };
+          return { _id, status: "Deletion not allowed" };
         }
-
         if (fs.lstatSync(filePath).isDirectory()) {
           fs.rmSync(filePath, { recursive: true, force: true });
         } else {
           fs.unlinkSync(filePath);
         }
-
-        await File.deleteOne({ id: id });
-        return { id, status: "Deleted successfully" };
+        await File.deleteOne({ _id: _id });
+        return { _id, status: "Deleted successfully" };
       }
-      return { id, status: "File not found" };
+      return { _id, status: "File not found" };
     });
 
     const results = await Promise.all(deletePromises);
@@ -335,9 +336,10 @@ app.get("/files", async (req, res) => {
       ? { owner: user.username, type: type, isDeleted: false }
       : { owner: user.username, isDeleted: false };
     const files = await File.find(query);
+
     res.json(
       files.map((file) => ({
-        id: file.id,
+        _id: file._id.toString(),
         name: file.name,
         size: file.size,
         location: file.location,
@@ -360,9 +362,10 @@ app.get("/filter", async (req, res) => {
   try {
     const query = type ? { type } : {};
     const files = await File.find(query);
+    console.log(query);
     res.json(
       files.map((file) => ({
-        id: file.id,
+        id: file._id,
         name: file.name,
         size: file.size,
         location: file.location,
@@ -381,13 +384,13 @@ app.get("/filter", async (req, res) => {
 });
 
 app.post("/toggle-star", async (req, res) => {
-  const { id } = req.body;
-
+  const { id } = req.body; // Again, make sure 'id' corresponds to MongoDB '_id'
   try {
-    const file = await File.findOne({ id: id });
+    const file = await File.findById(id);
     if (!file) {
       return res.status(404).send("File not found");
     }
+
     file.isStarred = !file.isStarred;
     await file.save();
     res.json({ message: "Starred status updated", starred: file.isStarred });
@@ -420,7 +423,7 @@ app.post("/toggle-trash", async (req, res) => {
   const { ids } = req.body;
   try {
     const toggleTrashPromises = ids.map(async (id) => {
-      const file = await File.findById(id);  // Using findById automatically targets _id
+      const file = await File.findById(id); // Using findById automatically targets _id
       if (!file) {
         return { id, status: "File not found" };
       }
@@ -440,7 +443,6 @@ app.post("/toggle-trash", async (req, res) => {
   }
 });
 
-
 app.get("/trash", async (req, res) => {
   try {
     const trashedItems = await File.find({
@@ -449,6 +451,7 @@ app.get("/trash", async (req, res) => {
     });
     res.json(
       trashedItems.map((file) => ({
+        _id: file._id,
         name: file.name,
         type: file.type,
         owner: file.owner,
@@ -462,21 +465,18 @@ app.get("/trash", async (req, res) => {
   }
 });
 
+// Ensure this endpoint exists and is correct in your server file
 app.post("/update-filename", async (req, res) => {
   const { id, newName } = req.body;
 
-  if (!id || !newName) {
-    return res.status(400).send("File ID and new name are required.");
-  }
-
   try {
-    const file = await File.findOne({ id: id });
+    const file = await File.findById(id); // Using findById to find the document
     if (!file) {
       return res.status(404).send("File not found");
     }
 
-    file.name = newName; // Update the name
-    await file.save(); // Save the updated file
+    file.name = newName;
+    await file.save();
     res.status(200).json({ message: "File name updated successfully", file });
   } catch (error) {
     console.error("Failed to update file name:", error);
@@ -485,7 +485,6 @@ app.post("/update-filename", async (req, res) => {
 });
 
 app.post("/share-file", async (req, res) => {
-  console.log("Received data:", req.body);
   const { fileId, userId } = req.body;
 
   if (!fileId || !userId) {
@@ -511,8 +510,6 @@ app.post("/share-file", async (req, res) => {
 app.get("/files-shared-with-me", async (req, res) => {
   const userId = req.session.user.id;
   const { type } = req.query;
-
-  console.log(type);
 
   try {
     let query = { sharedWith: userId };

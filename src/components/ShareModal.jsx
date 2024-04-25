@@ -56,9 +56,6 @@ const ShareModal = ({ show, onHide, onShare, fileId }) => {
     setError("");
   };
 
-  useEffect(() => {
-    console.log("Selected File Changed:", fileId);
-  }, [fileId]);
 
   return (
     <Modal show={show} onHide={handleClose} centered>

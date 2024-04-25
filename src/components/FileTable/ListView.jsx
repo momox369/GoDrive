@@ -23,6 +23,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
   const [newName, setNewName] = useState("");
 
   const handleOpenModal = (file) => {
+    console.log(file);
     setSelectedFile(file);
     setNewName(file.name);
     setShowModal(true);
@@ -38,10 +39,11 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
   const handleSaveNameChange = useCallback(async () => {
     if (selectedFile) {
       try {
+        console.log(selectedFile._id);
         const response = await axios.post(
           "http://localhost:3001/update-filename",
           {
-            id: selectedFile.id,
+            id: selectedFile._id,
             newName: newName,
           }
         );
@@ -55,6 +57,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
       }
     }
   }, [selectedFile, newName, fetchFilesAndFolders]);
+
   const handleStarClick = (event, item) => {
     event.preventDefault(); // Stop the browser from following the href in the anchor.
     event.stopPropagation(); // Prevent the event from bubbling up to parent elements.
@@ -81,7 +84,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
   };
   const isItemStarred = useCallback(
     (item) => {
-      return starredItems[item.type]?.includes(item.id);
+      return starredItems[item.type]?.includes(item._id);
     },
     [starredItems]
   );
@@ -116,17 +119,17 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
       <tbody>
         {items.map((item) => (
           <tr
-            key={item.id}
-            onMouseEnter={() => setHoveredId(item.id)}
+            key={item._id}
+            onMouseEnter={() => setHoveredId(item._id)}
             onMouseLeave={() => setHoveredId(null)}
             onClick={() => handleItemClick(item)}
             className={
-              isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
+              isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
             }
           >
             <td
               className={
-                isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
+                isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
               }
               id="name"
             >
@@ -134,7 +137,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
             </td>
             <td
               className={
-                isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
+                isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
               }
               id="reason"
             >
@@ -142,7 +145,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
             </td>
             <td
               className={
-                isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
+                isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
               }
               id="owner"
             >
@@ -150,7 +153,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
             </td>
             <td
               className={
-                isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
+                isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
               }
               id="location"
             >
@@ -159,17 +162,17 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
             <td
               id="buttons-list"
               className={
-                isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
+                isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
               }
             >
               <div
                 className={
-                  isSelected.some((f) => f.id === item.id)
+                  isSelected.some((f) => f._id === item._id)
                     ? "selected-file action-icons"
                     : ""
                 }
                 style={{
-                  visibility: hoveredId === item.id ? "visible" : "hidden",
+                  visibility: hoveredId === item._id ? "visible" : "hidden",
                 }}
               >
                 <UserPlus
@@ -223,7 +226,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
         show={showShareModal}
         onHide={handleCloseShareModal}
         onShare={shareItemWithUser}
-        fileId={selectedFile ? selectedFile.id : null}
+        fileId={selectedFile ? selectedFile._id : null}
       />
     </Table>
   );

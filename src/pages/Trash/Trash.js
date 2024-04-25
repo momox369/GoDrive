@@ -42,6 +42,7 @@ function Trash() {
     setSelectedFolders([]);
     fetchTrashedItems();
   }, [location.pathname]);
+  console.log(trashedItems);
   return (
     <DisplayPages>
       <div className="content drive">
@@ -54,7 +55,11 @@ function Trash() {
         <div className="all-items">
           <div className="all-items-folders">
             {" "}
-            <TrashList />
+            <ListView
+              items={trashedItems}
+              isSelected={isSelected}
+              handleItemClick={handleItemClick}
+            ></ListView>
           </div>
         </div>
       </div>

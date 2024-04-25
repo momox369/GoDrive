@@ -16,8 +16,6 @@ const FileTable = () => {
     handleItemClick,
     trashedItems,
   } = useFiles();
-
-  // Check if the path is not 'home'
   const isTrash = pathname === "/trash";
 
   return (

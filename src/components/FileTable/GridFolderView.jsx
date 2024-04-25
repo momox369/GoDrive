@@ -7,8 +7,8 @@ const GridFolderView = ({ items, isSelected, handleItemClick }) => (
   <div className="grid-container">
     {items.map((item) => (
       <div
-        key={item.id}
-        className={`grid-folder-item ${isSelected.some(f => f.id === item.id) ? "selected-file" : ""}`}
+        key={item._id}
+        className={`grid-folder-item ${isSelected.some(f => f._id === item._id) ? "selected-file" : ""}`}
         onClick={() => handleItemClick(item)}
       >
         <Folder size={25} weight="fill" />

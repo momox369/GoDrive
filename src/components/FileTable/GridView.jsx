@@ -6,9 +6,9 @@ const GridView = ({ items, isSelected, handleItemClick }) => (
   <div className="grid-container">
     {items.map((item) => (
       <div
-        key={item.id}
+        key={item._id}
         className={`grid-item ${
-          isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
+          isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
         }`}
         onClick={() => handleItemClick(item)}
       >

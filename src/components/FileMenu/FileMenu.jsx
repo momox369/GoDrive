@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import "./filemenu.scss";
 import { Button, Dropdown, Modal, Tab, Tabs } from "react-bootstrap";
 import { useFiles } from "../FileController";
+import ShareModal from "../ShareModal";
 
 const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
   const [showModal, setShowModal] = useState(false);
@@ -20,7 +21,7 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
   const handleCloseModal = () => setShowModal(false);
 
   const [key, setKey] = useState("home");
-
+  const [showShareModal, setShareShowModal] = useState(false);
   const {
     fileType,
     selectedFiles,
@@ -30,8 +31,13 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
     selectedFolders,
     trashedItems,
     toggleTrash,
+    shareItemWithUser,
   } = useFiles();
 
+  const handleOpenShareModal = () => {
+    setShareShowModal(true);
+  };
+  const handleCloseShareModal = () => setShareShowModal(false);
   const handleDelete = async () => {
     if (fileType === "files") {
       await toggleTrash(selectedFileIds);
@@ -113,7 +119,14 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
             className="file-menu-icon"
             weight="bold"
             size={18}
+            onClick={() => handleOpenShareModal()}
             style={{ margin: "0 5px", color: "#444746", cursor: "pointer" }}
+          />
+          <ShareModal
+            show={showShareModal}
+            onHide={handleCloseShareModal}
+            onShare={shareItemWithUser}
+            fileId={selectedFiles}
           />
         </Button>
         <Button className="menu-icons" onClick={handleDownload}>

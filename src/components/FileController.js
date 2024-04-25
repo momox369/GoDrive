@@ -21,8 +21,8 @@ export const FileProvider = ({ children }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedFolders, setSelectedFolders] = useState([]);
   const [sharedFiles, setSharedFiles] = useState({ files: [], folders: [] });
-  const fileIds = selectedFiles.map((file) => file.id);
-  const folderIds = selectedFolders.map((folder) => folder.id);
+  const fileIds = selectedFiles.map((file) => file._id);
+  const folderIds = selectedFolders.map((folder) => folder._id);
   const [activeFilters, setActiveFilters] = useState({
     type: {
       lastSelectedTitle: "Type",
@@ -156,7 +156,9 @@ export const FileProvider = ({ children }) => {
         await axios.delete("http://localhost:3001/delete", {
           data: { ids: fileIds },
         });
+        console.log(fileIds);
         fetchFilesAndFolders();
+        fetchTrashedItems();
       } catch (error) {
         console.error("Error deleting files:", error);
       }
@@ -198,7 +200,7 @@ export const FileProvider = ({ children }) => {
     async (item) => {
       try {
         const response = await axios.post("http://localhost:3001/toggle-star", {
-          id: item.id,
+          id: item._id,
         });
 
         console.log("Star toggled:", response.data);
@@ -210,12 +212,12 @@ export const FileProvider = ({ children }) => {
 
             if (
               response.data.starred &&
-              !updatedItems[type].includes(item.id)
+              !updatedItems[type].includes(item._id)
             ) {
-              updatedItems[type].push(item.id);
+              updatedItems[type].push(item._id);
             } else if (!response.data.starred) {
               updatedItems[type] = updatedItems[type].filter(
-                (id) => id !== item.id
+                (id) => id !== item._id
               );
             }
 
@@ -253,11 +255,53 @@ export const FileProvider = ({ children }) => {
     filterType === "folders" ? handleFolderSelect : handleFileSelect;
 
   const handleItemClick = (item) => {
-    const isCurrentlySelected = isSelected.some((f) => f.id === item.id);
-    if (isCurrentlySelected) {
-      handleSelect(isSelected.filter((f) => f.id !== item.id));
+    if (filterType === "files") {
+      const isCurrentlySelected = selectedFiles.some(
+        (selectedItem) => selectedItem._id === item._id
+      );
+
+      if (isCurrentlySelected) {
+        const newSelection = selectedFiles.filter(
+          (selectedItem) => selectedItem._id !== item._id
+        );
+        console.log(
+          "Deselecting, new selection:",
+          newSelection.map((f) => f._id)
+        );
+        setSelectedFiles(newSelection);
+        console.log(isSelected);
+      } else {
+        const newSelection = [...selectedFiles, item];
+        console.log(
+          "Selecting, new selection:",
+          newSelection.map((f) => f._id)
+        );
+        setSelectedFiles(newSelection);
+      }
     } else {
-      handleSelect([...isSelected, item]);
+      const isCurrentlySelected = selectedFolders.some(
+        (selectedItem) => selectedItem._id === item._id
+      );
+
+      if (isCurrentlySelected) {
+        const newSelection = selectedFolders.filter(
+          (selectedItem) => selectedItem._id !== item._id
+        );
+        console.log(
+          "Deselecting, new selection:",
+          newSelection.map((f) => f._id)
+        );
+        setSelectedFolders(newSelection);
+        console.log(isSelected);
+      } else {
+        // Select the item
+        const newSelection = [...selectedFolders, item];
+        console.log(
+          "Selecting, new selection:",
+          newSelection.map((f) => f._id)
+        );
+        setSelectedFolders(newSelection);
+      }
     }
   };
 
