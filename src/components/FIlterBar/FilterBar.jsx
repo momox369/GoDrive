@@ -200,7 +200,7 @@ const FilterBar = ({ activeFilters }) => {
               weight="fill"
               style={{ marginRight: "1rem" }}
             />
-            Excel Sheets
+            Excel Sheet
           </Dropdown.Item>
           <Dropdown.Item
             eventKey="3"
@@ -213,7 +213,7 @@ const FilterBar = ({ activeFilters }) => {
               weight="fill"
               style={{ marginRight: "1rem" }}
             />
-            Text Files
+            Text File
           </Dropdown.Item>
           <Dropdown.Item
             eventKey="4"

@@ -1,27 +1,13 @@
 import axios from "axios";
 import React, { useState, useCallback, useEffect } from "react";
 import { Modal, Button, Form, ListGroup } from "react-bootstrap";
+import { useAuth } from "./AuthProvider";
 
 const ShareModal = ({ show, onHide, onShare, fileId }) => {
   const [search, setSearch] = useState("");
-  const [users, setUsers] = useState([]);
+
   const [selectedUser, setSelectedUser] = useState(null);
-  const [error, setError] = useState("");
-
-  const fetchUsers = useCallback(async (query) => {
-    setError("");
-    try {
-      const response = await axios.get(`http://localhost:3001/search-users`, {
-        params: { query },
-      });
-      setUsers(response.data); // Assuming the API returns an array of users
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      setError("Failed to fetch users");
-      setUsers([]);
-    }
-  }, []);
-
+  const { fetchUsers, users, setUsers, error, setError } = useAuth();
   const handleUserSelect = (user) => {
     setSelectedUser(user);
     setSearch(`${user.username} (${user.email})`);
@@ -29,7 +15,6 @@ const ShareModal = ({ show, onHide, onShare, fileId }) => {
   };
 
   const handleShare = () => {
-    console.log("Sharing File ID:", fileId);
     if (selectedUser && fileId) {
       onShare(fileId, selectedUser._id);
       onHide();
@@ -55,7 +40,6 @@ const ShareModal = ({ show, onHide, onShare, fileId }) => {
     setUsers([]);
     setError("");
   };
-
 
   return (
     <Modal show={show} onHide={handleClose} centered>

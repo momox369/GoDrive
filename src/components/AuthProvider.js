@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -14,6 +15,8 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [currentUser, setCurrentUser] = useState({ email: "", username: "" });
+  const [users, setUsers] = useState([]);
+  const [error, setError] = useState("");
 
   const getCurrentUser = async () => {
     try {
@@ -79,6 +82,20 @@ export const AuthProvider = ({ children }) => {
       }
     }
   };
+  const fetchUsers = useCallback(async (query) => {
+    setError("");
+    try {
+      const response = await axios.get(`http://localhost:3001/search-users`, {
+        params: { query },
+      });
+      setUsers(response.data); // Assuming the API returns an array of users
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      setError("Failed to fetch users");
+      setUsers([]);
+    }
+  }, []);
+
   useEffect(() => {
     getCurrentUser();
   }, []);
@@ -96,8 +113,13 @@ export const AuthProvider = ({ children }) => {
       verifyPassword,
       register,
       logout,
+      fetchUsers,
+      users,
+      setUsers,
+      error,
+      setError,
     }),
-    [user, currentUser]
+    [user, currentUser, users]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

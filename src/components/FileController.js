@@ -6,7 +6,7 @@ import React, {
   useEffect,
 } from "react";
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 const FileContext = createContext();
 
 export const useFiles = () => useContext(FileContext);
@@ -23,6 +23,19 @@ export const FileProvider = ({ children }) => {
   const [sharedFiles, setSharedFiles] = useState({ files: [], folders: [] });
   const fileIds = selectedFiles.map((file) => file._id);
   const folderIds = selectedFolders.map((folder) => folder._id);
+  const [searchResults, setSearchResults] = useState([]);
+  const navigate = useNavigate();
+  const [folderFiles, setFolderFiles] = useState([]);
+  const [folderName, setfolderName] = useState(null);
+
+  const handleFolderDoubleClick = (folder) => {
+    setfolderName(folder.name); // Set the ID for the selected folder
+    navigate(`/folders/${folder.name}`); // Navigate to the folder's content
+  };
+
+  const handleSearchComplete = (results) => {
+    setSearchResults(results);
+  };
   const [activeFilters, setActiveFilters] = useState({
     type: {
       lastSelectedTitle: "Type",
@@ -342,6 +355,13 @@ export const FileProvider = ({ children }) => {
         shareItemWithUser,
         sharedFiles,
         fetchSharedFiles,
+        searchResults,
+        setSearchResults,
+        handleSearchComplete,
+        folderFiles,
+        setFolderFiles,
+        folderName,
+        handleFolderDoubleClick,
       }}
     >
       {children}

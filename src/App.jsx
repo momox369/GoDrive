@@ -16,6 +16,9 @@ import "../src/app.css";
 import DisplayPages from "./DisplayPages";
 import SignInPass from "./pages/SignIn/SignInpass";
 import { AuthProvider } from "./components/AuthProvider";
+import SearchResult from "./pages/SearchResult/SearchResult";
+import AdvancedSearch from "./components/TopBar/AdvancedFilter";
+import FolderContent from "./pages/FolderView/FolderView";
 
 const App = () => (
   <BrowserRouter>
@@ -32,6 +35,8 @@ const App = () => (
             <Route path="/starred" element={<Starred />} />
             <Route path="/trash" element={<Trash />} />
             <Route path="/display" element={<DisplayPages />} />
+            <Route path="/searchResults" element={<SearchResult />} />{" "}
+            <Route path="/folders/:folderName" element={<FolderContent />} />
           </Routes>
         </AuthProvider>
       </ViewModeProvider>

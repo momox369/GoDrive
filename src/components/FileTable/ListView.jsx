@@ -15,8 +15,13 @@ import ShareModal from "../ShareModal";
 
 const ListView = ({ items, isSelected, handleItemClick }) => {
   const [hoveredId, setHoveredId] = useState(null);
-  const { toggleStar, starredItems, fetchFilesAndFolders, shareItemWithUser } =
-    useFiles();
+  const {
+    toggleStar,
+    starredItems,
+    fetchFilesAndFolders,
+    shareItemWithUser,
+    handleFolderDoubleClick,
+  } = useFiles();
   const [showModal, setShowModal] = useState(false);
   const [showShareModal, setShareShowModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -123,13 +128,20 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
             onMouseEnter={() => setHoveredId(item._id)}
             onMouseLeave={() => setHoveredId(null)}
             onClick={() => handleItemClick(item)}
+            onDoubleClick={() => {
+              if (item.type === "folders") {
+                handleFolderDoubleClick(item); // Call the function on double-click
+              }
+            }}
             className={
               isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
             }
           >
             <td
               className={
-                isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
+                isSelected.some((f) => f._id === item._id)
+                  ? "selected-file"
+                  : ""
               }
               id="name"
             >
@@ -137,7 +149,9 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
             </td>
             <td
               className={
-                isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
+                isSelected.some((f) => f._id === item._id)
+                  ? "selected-file"
+                  : ""
               }
               id="reason"
             >
@@ -145,7 +159,9 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
             </td>
             <td
               className={
-                isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
+                isSelected.some((f) => f._id === item._id)
+                  ? "selected-file"
+                  : ""
               }
               id="owner"
             >
@@ -153,7 +169,9 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
             </td>
             <td
               className={
-                isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
+                isSelected.some((f) => f._id === item._id)
+                  ? "selected-file"
+                  : ""
               }
               id="location"
             >
@@ -162,7 +180,9 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
             <td
               id="buttons-list"
               className={
-                isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
+                isSelected.some((f) => f._id === item._id)
+                  ? "selected-file"
+                  : ""
               }
             >
               <div

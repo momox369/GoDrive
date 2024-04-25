@@ -4,31 +4,26 @@
 .input-group {
   &:focus-within {
     #inputGroup-sizing-default {
-      background-color: white;
+      background-color: white !important;
     }
     .form-control {
-      background-color: white;
+      background-color: white !important;
     }
   }
 }
 .input-group,
-.input-group > .form-control,
+.form-control,
 #inputGroup-sizing-default {
-  transition: background-color 0.2s ease-in-out;
+  transition: background-color 0.1s ease-in-out !important;
 }
-.input-group > .form-control {
-  background-color: #e9eef6;
-  border: none;
-
+.form-control {
+  background-color: #e9eef6 !important;
+  border: 1px solid #e9eef6;
   &:focus {
-    outline: none;
-    box-shadow: none;
-    background-color: white;
-    border-color: transparent;
-  }
-
-  &:active {
-    outline: none;
+    outline: none !important;
+    box-shadow: none !important;
+    background-color: white !important;
+    border-color: white !important;
   }
 }
 

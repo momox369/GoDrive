@@ -357,6 +357,33 @@ app.get("/files", async (req, res) => {
   }
 });
 
+app.get("/folder-contents/:folderName", async (req, res) => {
+  const uploadsDir = path.join(__dirname, "uploads");
+  const folderName = req.params.folderName;
+
+  // Resolve the folder path to prevent path traversal vulnerabilities
+  const folderPath = path.resolve(uploadsDir, folderName);
+  if (!folderPath.startsWith(uploadsDir)) {
+    return res.status(403).send("Access Denied");
+  }
+
+  fs.readdir(folderPath, { withFileTypes: true }, (err, files) => {
+    if (err) {
+      console.error("Failed to read directory:", err);
+      return res.status(500).send("Failed to read directory");
+    }
+
+    const results = files.map((dirent) => ({
+      name: dirent.name,
+      type: dirent.isDirectory() ? "folder" : "file",
+      path: path.join(folderName, dirent.name),
+    }));
+
+    res.json(results);
+  });
+});
+
+
 app.get("/filter", async (req, res) => {
   const { type } = req.query;
   try {
@@ -541,4 +568,49 @@ app.get("/search-users", async (req, res) => {
 
 app.listen(3001, () => {
   console.log("Server running on port 3001");
+});
+
+app.get("/files/basic-search", async (req, res) => {
+  const { query } = req.query;
+  if (!req.session.user || !req.session.user.username) {
+    return res.status(401).send("Unauthorized: No user logged in.");
+  }
+
+  try {
+    const results = await File.find({
+      owner: req.session.user.username, // Restrict search to user-owned files
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { type: { $regex: query, $options: "i" } },
+        { location: { $regex: query, $options: "i" } },
+      ],
+    });
+    res.json(results);
+  } catch (error) {
+    console.error("Search error:", error);
+    res.status(500).json({ message: "Failed to search files" });
+  }
+});
+
+app.get("/files/advanced-search", async (req, res) => {
+  const { type, owner, words, itemName, location, inTrash, starred } =
+    req.query;
+  let query = {};
+
+  if (type && type !== "Any") query.type = type;
+  if (owner && owner !== "Anyone") query.owner = owner;
+  if (words) query.$text = { $search: words };
+  if (itemName) query.name = { $regex: itemName, $options: "i" };
+  if (location && location !== "Anywhere") query.location = location;
+  if (inTrash !== undefined)
+    query.isDeleted = inTrash === "true" ? true : false;
+  if (starred !== undefined)
+    query.isStarred = starred === "true" ? true : false;
+
+  try {
+    const results = await File.find(query);
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
