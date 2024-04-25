@@ -3,30 +3,31 @@ import "./SignIn.scss";
 import logo from "../../assets/logo.png";
 import { Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../components/AuthProvider";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const { verifyEmail } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(email, password, rememberMe);
-    navigate("/loginpass")
+    try {
+      await verifyEmail(email); // Call login function
+      navigate("/loginpass"); // Redirect to password page if email exists
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
-
-  const handleSignUp = () => {
-    console.log("Redirect to Sign Up");
+  const handleRegisterClick = () => {
+    navigate("/signup"); // Navigate to the signup page
   };
 
   return (
     <div className="sign-in-container">
       <form className="sign-in-form" onSubmit={handleSubmit}>
-        {/* <div className="left-panel">
-          
-          <h1>Sign In</h1>
-        </div> */}
         <div className="right-panel">
           <div className="logo-signin">
             <img
@@ -53,9 +54,6 @@ const SignIn = () => {
             />
           </div>
           <div className="signin-btns">
-            <Button className="signin-buttons" variant="secondary">
-              Create account
-            </Button>
             <Button
               type="submit"
               className="signin-buttons next"
@@ -64,34 +62,12 @@ const SignIn = () => {
               Next
             </Button>
           </div>
-          {/* <div className="input-group password">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              className="signin-boxes"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-            />
-          </div> */}
-          {/* <div className="input-group">
-            <label>
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />{" "}
-              Remember Me
-            </label>
-          </div> */}
-          {/* <button id="signin-btn" type="submit">
-            Sign In
-          </button>
-          <button id="signup-btn" type="button" onClick={handleSignUp}>
-            Sign Up
-          </button> */}
+          <span className="no-account">
+            Don't Have An Account?{" "}
+            <span onClick={handleRegisterClick} className="register-here">
+              Register Here
+            </span>
+          </span>
         </div>
       </form>
     </div>

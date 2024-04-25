@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button, Modal, Table } from "react-bootstrap";
 import {
   Folder,
@@ -11,28 +11,29 @@ import "./filetable.scss";
 import { useFiles } from "../FileController";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import ShareModal from "../ShareModal";
 
 const ListView = ({ items, isSelected, handleItemClick }) => {
   const [hoveredId, setHoveredId] = useState(null);
-  const { toggleStar, starredItems, filterType } = useFiles();
+  const { toggleStar, starredItems, fetchFilesAndFolders, shareItemWithUser } =
+    useFiles();
   const [showModal, setShowModal] = useState(false);
+  const [showShareModal, setShareShowModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [newName, setNewName] = useState("");
-  const navigate = useNavigate();
-
-  const handleDoubleClick = (item) => {
-    if (item.type === "folders") {
-      navigate(`/folder/${item.id}`);
-    }
-  };
 
   const handleOpenModal = (file) => {
     setSelectedFile(file);
     setNewName(file.name);
     setShowModal(true);
   };
+  const handleOpenShareModal = (file) => {
+    setSelectedFile(file);
+    setShareShowModal(true);
+  };
 
   const handleCloseModal = () => setShowModal(false);
+  const handleCloseShareModal = () => setShareShowModal(false);
 
   const handleSaveNameChange = useCallback(async () => {
     if (selectedFile) {
@@ -47,17 +48,60 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
         if (response.status === 200) {
           console.log("Name updated successfully", response.data);
           handleCloseModal();
+          fetchFilesAndFolders();
         }
       } catch (error) {
         console.error("Error updating file name:", error);
       }
     }
-  }, [selectedFile, newName]);
+  }, [selectedFile, newName, fetchFilesAndFolders]);
+  const handleStarClick = (event, item) => {
+    event.preventDefault(); // Stop the browser from following the href in the anchor.
+    event.stopPropagation(); // Prevent the event from bubbling up to parent elements.
 
-  const isItemStarred = (item) => {
-    return starredItems[item.type] && starredItems[item.type].includes(item.id);
+    toggleStar(item);
   };
+  const handlePenClick = (event, item) => {
+    event.preventDefault(); // Stop the browser from following the href in the anchor.
+    event.stopPropagation(); // Prevent the event from bubbling up to parent elements.
 
+    handleOpenModal(item);
+  };
+  const handleDownloadClick = (event, item) => {
+    event.preventDefault(); // Stop the browser from following the href in the anchor.
+    event.stopPropagation(); // Prevent the event from bubbling up to parent elements.
+
+    handleDownload(item);
+  };
+  const handleShareClick = (event, item) => {
+    event.preventDefault(); // Stop the browser from following the href in the anchor.
+    event.stopPropagation(); // Prevent the event from bubbling up to parent elements.
+
+    handleOpenShareModal(item);
+  };
+  const isItemStarred = useCallback(
+    (item) => {
+      return starredItems[item.type]?.includes(item.id);
+    },
+    [starredItems]
+  );
+
+  const handleDownload = async (file) => {
+    try {
+      const response = await fetch(file.url);
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = file.name;
+      document.body.appendChild(link);
+      link.click();
+      window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Failed to download file:", error);
+    }
+  };
   return (
     <Table hover className="file-table">
       <thead style={{ position: "sticky", top: "0" }}>
@@ -76,7 +120,6 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
             onMouseEnter={() => setHoveredId(item.id)}
             onMouseLeave={() => setHoveredId(null)}
             onClick={() => handleItemClick(item)}
-            onDoubleClick={() => handleDoubleClick(item)} // Corrected here
             className={
               isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
             }
@@ -85,6 +128,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
               className={
                 isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
               }
+              id="name"
             >
               {item.name}
             </td>
@@ -92,6 +136,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
               className={
                 isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
               }
+              id="reason"
             >
               {item.reason}
             </td>
@@ -99,6 +144,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
               className={
                 isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
               }
+              id="owner"
             >
               {item.owner}
             </td>
@@ -106,6 +152,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
               className={
                 isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
               }
+              id="location"
             >
               {item.location}
             </td>
@@ -125,17 +172,26 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
                   visibility: hoveredId === item.id ? "visible" : "hidden",
                 }}
               >
-                <UserPlus size={20} className="action-icon" />
-                <DownloadSimple className="action-icon" size={20} />
+                <UserPlus
+                  size={20}
+                  className="action-icon"
+                  onClick={(e) => handleShareClick(e, item)}
+                />
+                <DownloadSimple
+                  className="action-icon"
+                  size={20}
+                  onClick={(e) => handleDownloadClick(e, item)}
+                />
                 <PencilSimpleLine
                   className="action-icon"
                   size={20}
-                  onClick={() => handleOpenModal(item)}
+                  onClick={(e) => handlePenClick(e, item)}
                 />
                 <Star
                   size={20}
                   className="action-icon"
                   weight={isItemStarred(item) ? "fill" : "regular"}
+                  onClick={(event) => handleStarClick(event, item)}
                 />
               </div>
             </td>
@@ -162,6 +218,13 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <ShareModal
+        show={showShareModal}
+        onHide={handleCloseShareModal}
+        onShare={shareItemWithUser}
+        fileId={selectedFile ? selectedFile.id : null}
+      />
     </Table>
   );
 };

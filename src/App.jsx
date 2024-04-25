@@ -11,32 +11,30 @@ import { ViewModeProvider } from "./components/ViewModeController";
 import FullScreenDropzone from "./components/FileUpload";
 import { FileProvider } from "./components/FileController";
 import SignIn from "./pages/SignIn/SignIn";
-import SignUp from "./pages/SignUp/SignUp";
+import SignUp from "./pages/SignIn/SignUp";
 import "../src/app.css";
 import DisplayPages from "./DisplayPages";
 import SignInPass from "./pages/SignIn/SignInpass";
-import FolderContents from "./components/FolderContent";
+import { AuthProvider } from "./components/AuthProvider";
 
 const App = () => (
   <BrowserRouter>
     <ViewModeProvider>
-      <FileProvider>
-        <Routes>
-          <Route path="/" element={<SignIn />} />
-          <Route path="/loginpass" element={<SignInPass />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/drive" element={<Drive />} />
-          <Route path="/shared" element={<Shared />} />
-          <Route path="/starred" element={<Starred />} />
-          <Route path="/trash" element={<Trash />} />
-          <Route path="/display" element={<DisplayPages />} />
-          <Route
-            path="/folder/:folderId"
-            component={<FolderContents></FolderContents>}
-          />
-        </Routes>
-      </FileProvider>
+      <AuthProvider>
+        <FileProvider>
+          <Routes>
+            <Route path="/" element={<SignIn />} />
+            <Route path="/loginpass" element={<SignInPass />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/drive" element={<Drive />} />
+            <Route path="/shared" element={<Shared />} />
+            <Route path="/starred" element={<Starred />} />
+            <Route path="/trash" element={<Trash />} />
+            <Route path="/display" element={<DisplayPages />} />
+          </Routes>
+        </FileProvider>
+      </AuthProvider>
     </ViewModeProvider>
   </BrowserRouter>
 );

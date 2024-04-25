@@ -27,12 +27,10 @@ const TrashMenu = ({ selectedFileIds, selectedFolderIds }) => {
   } = useFiles();
 
   const handleRecover = async () => {
-    if (fileType === "files") {
-      await toggleTrash(selectedFileIds);
-      console.log(selectedFileIds);
-    } else {
-      await toggleTrash(selectedFolderIds);
-    }
+    const idsToToggle = (
+      fileType === "files" ? selectedFiles : selectedFolders
+    ).map((file) => file._id);
+    await toggleTrash(idsToToggle);
   };
   const handleDelete = async () => {
     if (fileType === "files") {

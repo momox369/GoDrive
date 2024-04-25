@@ -2,15 +2,24 @@ import { useState } from "react";
 import { Gear } from "@phosphor-icons/react";
 import { Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
 import "./settings.scss";
-
+import { useAuth } from "../AuthProvider";
+import { useNavigate } from "react-router-dom";
 export default function Settings() {
   const [selectedIdx, setSelectedIdx] = useState(-1);
-  const settingsOptions = ["Edit Profile", "Contact Us"];
+  const settingsOptions = ["Sign Out"];
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
+  const handleSignOut = () => {
+    navigate("/");
+  };
   return (
     <div>
       <Dropdown>
-        <OverlayTrigger placement="bottom" overlay={<Tooltip>Settings</Tooltip>}>
+        <OverlayTrigger
+          placement="bottom"
+          overlay={<Tooltip>Settings</Tooltip>}
+        >
           <Dropdown.Toggle
             variant="secondary"
             id="dropdown-settings"
@@ -25,7 +34,7 @@ export default function Settings() {
             <Dropdown.Item
               key={option}
               active={selectedIdx === index}
-              onClick={() => setSelectedIdx(index)}
+              onClick={() => logout && handleSignOut()}
             >
               {option}
             </Dropdown.Item>

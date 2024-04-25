@@ -3,21 +3,23 @@ import "./SignIn.scss";
 import logo from "../../assets/logo.png";
 import { Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../components/AuthProvider";
 
 const SignInPass = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { verifyPassword } = useAuth();
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(email, password, rememberMe);
-    navigate("/home");
-  };
-
-  const handleSignUp = () => {
-    console.log("Redirect to Sign Up");
+    try {
+      await verifyPassword(password); // Call login function
+      navigate("/home"); // Navigate to the home page on successful login
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
 
   return (
@@ -59,7 +61,11 @@ const SignInPass = () => {
             </label>
           </div>
           <div className="signin-btns">
-            <Button className="signin-buttons" variant="secondary">
+            <Button
+              className="signin-buttons"
+              variant="secondary"
+              onClick={() => navigate("/")}
+            >
               Back
             </Button>
             <Button
@@ -70,6 +76,9 @@ const SignInPass = () => {
               Sign In
             </Button>
           </div>
+          <span>
+            Don't Have An Account? <span>Register Here</span>
+          </span>
         </div>
       </form>
     </div>

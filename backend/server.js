@@ -8,38 +8,100 @@ require("dotenv").config();
 const PORT = process.env.PORT || 3001;
 const app = express();
 const fs = require("fs");
-
+const bcrypt = require("bcryptjs");
+const session = require("express-session");
 app.use(express.json());
 const corsOptions = {
   origin: "http://localhost:3000",
+  credentials: true,
   methods: ["GET", "POST", "DELETE"],
   optionsSuccessStatus: 200,
 };
+
 app.use(cors(corsOptions));
 
 const uri = process.env.MONGODB_URI;
+const SESSION_SECRET = process.env.SESSION_SECRET;
+
 mongoose
-  .connect(uri)
+  .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("MongoDB connected"))
-  .catch((err) => {
-    console.error("Error connecting to MongoDB", err);
-    process.exit(1);
-  });
+  .catch((err) => console.log(err));
 
 const fileSchema = new mongoose.Schema({
-  id: { type: String, required: true },
   name: { type: String, required: true },
   size: Number,
   location: { type: String, required: true },
   url: String,
   reason: String,
-  owner: [{ type: String, required: true }],
+  owner: { type: String, required: true },
   type: { type: String, default: "file" },
   isStarred: { type: Boolean, default: false },
   isDeleted: { type: Boolean, default: false },
-  sharedWith: [],
+  sharedWith: [String],
+});
+app.use(
+  session({
+    secret: SESSION_SECRET, // Ensure this is set and consistent
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true in production with HTTPS
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60, // Adjust as necessary
+    },
+  })
+);
+
+userSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      validate: {
+        validator: function (v) {
+          return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
+        },
+        message: (props) => `${props.value} is not a valid email!`,
+      },
+    },
+    username: {
+      type: String,
+      required: [true, "Username is required"],
+      unique: true,
+      lowercase: true,
+      minlength: [3, "Username must be at least 3 characters long"],
+      maxlength: [30, "Username cannot exceed 30 characters"],
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [6, "Password must be at least 6 characters long"],
+      select: false, // This prevents the password from being returned in queries by default
+    },
+  },
+  {
+    timestamps: true, // Adds createdAt and updatedAt timestamps
+  }
+);
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+
+  try {
+    this.password = bcrypt.hash(this.password, 10);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
+// Method to check the password validity
+userSchema.methods.isValidPassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
+const User = mongoose.model("User", userSchema);
 const File = mongoose.model("File", fileSchema);
 
 const storage = multer.diskStorage({
@@ -52,6 +114,97 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+app.post("/register", async (req, res) => {
+  const { email, username, password } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+      return res
+        .status(400)
+        .send("A user with the same email or username already exists.");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      email,
+      username,
+      password: hashedPassword,
+    });
+
+    await newUser.save();
+    res.status(201).send("User registered successfully");
+  } catch (error) {
+    console.error("Error registering new user:", error);
+    res.status(500).send("Error registering new user");
+  }
+});
+
+app.post("/login/email", async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
+      return res.status(404).send("No account with that email address.");
+    }
+    req.session.user = {
+      id: user._id,
+      email: user.email,
+      username: user.username,
+    };
+    res.send("Email verified, please proceed to password.");
+  } catch (error) {
+    console.error("Error during email verification:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.post("/login/password", async (req, res) => {
+  const { password } = req.body;
+
+  if (!req.session.user || !req.session.user.id) {
+    return res.status(401).send("Session expired or invalid.");
+  }
+
+  try {
+    const user = await User.findById(req.session.user.id).select("+password");
+    if (!user) {
+      return res.status(404).send("User not found.");
+    }
+
+    const isMatch = await user.isValidPassword(password, user.password);
+    if (isMatch) {
+      // You might want to refresh the session here or redirect the user
+      res.send("Authenticated successfully.");
+    } else {
+      res.status(401).send("Invalid password.");
+    }
+  } catch (error) {
+    console.error("Password verification error:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/current-user", async (req, res) => {
+  if (!req.session.user || !req.session.user.id) {
+    return res.status(401).send("No user is currently signed in.");
+  }
+
+  try {
+    const user = await User.findById(req.session.user.id).select("+password");
+    if (!user) {
+      return res.status(404).send("User not found.");
+    }
+    res.json({
+      email: user.email,
+      username: user.username,
+    });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 app.post(
   "/upload",
@@ -64,13 +217,12 @@ app.post(
     const reason = `Uploaded on ${uploadDate}`;
 
     const fileMetadata = new File({
-      id: uuidv4(),
       name: filename,
       size: size,
       location: `/uploads/${filename}`,
       url: `http://localhost:${PORT}/uploads/${filename}`,
       reason: reason,
-      owner: "user@gmail.com",
+      owner: req.session.user.username,
       type: isFolder ? "folders" : "files",
     });
 
@@ -113,13 +265,12 @@ app.post("/create-folder", cors(corsOptions), async (req, res) => {
   }
 
   const folderMetadata = new File({
-    id: uuidv4(),
     name: folderName,
     size: 0,
     location: `/uploads/${folderName}`,
     url: `http://localhost:${PORT}/uploads/${folderName}`,
     reason: reason,
-    owner: "user@gmail.com",
+    owner: req.session.user.username,
     type: "folders",
   });
 
@@ -176,9 +327,13 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get("/files", async (req, res) => {
   const { type } = req.query;
   try {
+    const user = await User.findOne({ email: req.session.user.email });
+    if (!user) {
+      res.status(400).send("User Not Found");
+    }
     const query = type
-      ? { type: type, isDeleted: false }
-      : { isDeleted: false };
+      ? { owner: user.username, type: type, isDeleted: false }
+      : { owner: user.username, isDeleted: false };
     const files = await File.find(query);
     res.json(
       files.map((file) => ({
@@ -200,9 +355,6 @@ app.get("/files", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
 app.get("/filter", async (req, res) => {
   const { type } = req.query;
   try {
@@ -232,7 +384,6 @@ app.post("/toggle-star", async (req, res) => {
   const { id } = req.body;
 
   try {
-    // Use findOne to search by your custom 'id' field instead of '_id'
     const file = await File.findOne({ id: id });
     if (!file) {
       return res.status(404).send("File not found");
@@ -247,9 +398,16 @@ app.post("/toggle-star", async (req, res) => {
 });
 
 app.get("/starred", async (req, res) => {
-  const { type } = req.query; // Optional type filter
+  if (!req.session.user) {
+    return res.status(401).send("User not signed in.");
+  }
+  const { type } = req.query;
   try {
-    const query = type ? { isStarred: true, type: type } : { isStarred: true };
+    const query = {
+      owner: req.session.user.username,
+      isStarred: true,
+      ...(type && { type: type }),
+    };
     const starredItems = await File.find(query);
     res.json(starredItems);
   } catch (error) {
@@ -259,18 +417,17 @@ app.get("/starred", async (req, res) => {
 });
 
 app.post("/toggle-trash", async (req, res) => {
-  const { ids } = req.body; // Expect an array of IDs
-
+  const { ids } = req.body;
   try {
     const toggleTrashPromises = ids.map(async (id) => {
-      const file = await File.findOne({ id: id });
+      const file = await File.findById(id);  // Using findById automatically targets _id
       if (!file) {
-        return { id: id, status: "File not found" };
+        return { id, status: "File not found" };
       }
-      file.isDeleted = !file.isDeleted; // Toggle the isDeleted flag
+      file.isDeleted = !file.isDeleted;
       await file.save();
       return {
-        id: id,
+        id: file._id,
         status: file.isDeleted ? "Marked as deleted" : "Restored",
       };
     });
@@ -279,16 +436,19 @@ app.post("/toggle-trash", async (req, res) => {
     res.status(200).json(results);
   } catch (error) {
     console.error("Failed to toggle trash status:", error);
-    res.status(500).send({ message: "Failed to update trash status", error });
+    res.status(500).send("Failed to update trash status");
   }
 });
 
+
 app.get("/trash", async (req, res) => {
   try {
-    const trashedItems = await File.find({ isDeleted: true });
+    const trashedItems = await File.find({
+      owner: req.session.user.username,
+      isDeleted: true,
+    });
     res.json(
       trashedItems.map((file) => ({
-        id: file.id,
         name: file.name,
         type: file.type,
         owner: file.owner,
@@ -301,26 +461,7 @@ app.get("/trash", async (req, res) => {
     res.status(500).send("Failed to fetch trashed files/folders");
   }
 });
-app.post("/share", async (req, res) => {
-  const { id, username } = req.body;
-  try {
-    const file = await File.findOne({ id: id });
-    if (!file) {
-      return res.status(404).send("File not found");
-    }
-    // Ensure not to add the username if it already exists
-    if (!file.owner.includes(username)) {
-      file.owner.push(username);
-      await file.save();
-      console.log(`File shared with ${username}`);
-    }
-    res.json(file);
-  } catch (error) {
-    console.error("Error sharing file:", error);
-    res.status(500).send("Error sharing file");
-  }
-});
-// Update file name endpoint
+
 app.post("/update-filename", async (req, res) => {
   const { id, newName } = req.body;
 
@@ -342,18 +483,65 @@ app.post("/update-filename", async (req, res) => {
     res.status(500).send("Error updating file name");
   }
 });
-app.get("/folder/:id", async (req, res) => {
-  const folderId = req.params.id;
+
+app.post("/share-file", async (req, res) => {
+  console.log("Received data:", req.body);
+  const { fileId, userId } = req.body;
+
+  if (!fileId || !userId) {
+    return res.status(400).send("Missing file ID or user ID");
+  }
 
   try {
-    // Assuming you have a function to find files by their folder ID
-    const files = await File.find({
-      parentFolderId: folderId,
-      isDeleted: false,
-    });
+    const file = await File.findById(fileId);
+    if (!file) {
+      return res.status(404).send("File not found");
+    }
+    if (!file.sharedWith.includes(userId)) {
+      file.sharedWith.push(userId);
+      await file.save();
+    }
+    res.status(200).send("File shared successfully");
+  } catch (error) {
+    console.error("Failed to share file:", error);
+    res.status(500).send("Error sharing file");
+  }
+});
+
+app.get("/files-shared-with-me", async (req, res) => {
+  const userId = req.session.user.id;
+  const { type } = req.query;
+
+  console.log(type);
+
+  try {
+    let query = { sharedWith: userId };
+    if (type) {
+      query.type = type;
+    }
+
+    const files = await File.find(query);
     res.json(files);
   } catch (error) {
-    console.error("Error retrieving folder contents:", error);
-    res.status(500).send("Error retrieving data");
+    console.error("Error fetching shared files:", error);
+    res.status(500).send("Error fetching shared files");
   }
+});
+
+app.get("/search-users", async (req, res) => {
+  const searchQuery = req.query.query;
+  try {
+    const regex = new RegExp(searchQuery, "i"); // Case-insensitive regex search
+    const users = await User.find({
+      $or: [{ email: { $regex: regex } }, { username: { $regex: regex } }],
+    }).select("email username _id");
+    res.json(users);
+  } catch (error) {
+    console.error("Error searching for users:", error);
+    res.status(500).send("Error searching for users");
+  }
+});
+
+app.listen(3001, () => {
+  console.log("Server running on port 3001");
 });

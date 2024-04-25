@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import profileIcon from "../../assets/default-profile-picture.png";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import "./profileicon.css";
+import { useAuth } from "../AuthProvider";
 function ProfileIcon() {
+  const { currentUser } = useAuth();
+
   const renderTooltip = (props) => (
     <Tooltip id="button-tooltip" {...props}>
-      <p id="username">Hi, username!</p>
-      Ramzi Zeineddine
-      <br />
-      rzeineddine200382@gmail.com
+      <p id="username">{currentUser.username}</p>
+      {currentUser.email}
     </Tooltip>
   );
 

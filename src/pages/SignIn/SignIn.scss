@@ -56,24 +56,6 @@
   }
 }
 
-#signin-btn,
-#signup-btn {
-  padding: 8px 10px !important; /* Smaller padding for smaller buttons */
-  font-size: 14px !important; /* Adjust font size if needed */
-  width: auto !important; /* Adjust width to content */
-  min-width: 100px !important; /* Ensuring buttons aren't too small */
-  margin-bottom: 10px !important; /* Space between buttons vertically if stacked */
-  border-radius: 5px;
-  border: none;
-  background-color: #0957d0;
-  color: white;
-}
-
-#signin-btn:hover,
-#sign-up-button:hover {
-  background-color: #0056b3 !important;
-}
-
 .input-group label {
   display: flex;
   align-items: center;
@@ -82,13 +64,6 @@
 input[type="checkbox"] {
   margin-right: 5px;
 }
-
-// .sign-up-button {
-//   background-color: #28a745;
-//   &:hover {
-//     background-color: #1e6b34;
-//   }
-// }
 
 .title-signin {
   h4 {
@@ -100,7 +75,7 @@ input[type="checkbox"] {
 }
 .signin-btns {
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
   margin-top: 2rem;
 }
 .signin-buttons {
@@ -120,4 +95,12 @@ input[type="checkbox"] {
   padding: 0.5rem 2rem;
   color: white !important;
   background-color: #3b72d9 !important;
+}
+.no-account {
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  .register-here {
+    color: #3b72d9;
+    cursor: pointer;
+  }
 }
