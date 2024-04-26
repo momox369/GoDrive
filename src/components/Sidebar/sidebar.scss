@@ -45,3 +45,51 @@ img {
     line-height: 1;
   }
 }
+
+.container {
+  transition: width 0.3s ease;
+
+  &.collapsed {
+    width: 50px;
+
+    .brand {
+      justify-content: center;
+      width: 100%; // Ensure the logo can expand to full width of the sidebar
+      padding: 10px 0; // Add padding for better spacing
+    }
+
+    .logo {
+      width: 60px; // Increase the width of the logo in the collapsed state
+      height: auto; // Maintain aspect ratio
+    }
+
+    .toggle-btn {
+      display: block;
+      width: 100%;
+      margin-top: -10px;
+      background: none;
+      border: none;
+    }
+
+    .toggle-btn img {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+
+
+
+@media (max-width: 768px) {
+  .container {
+    width: 0;
+    &.collapsed {
+      width: 0;
+    }
+  }
+
+  .toggle-btn {
+    display: block;
+  }
+}
