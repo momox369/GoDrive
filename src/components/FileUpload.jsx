@@ -6,14 +6,15 @@ import { useFiles } from "./FileController";
 
 const FullScreenDropzone = ({ children, onFilesUploaded }) => {
   const [isDragActive, setIsDragActive] = useState(false);
-  const { uploadFile } = useFiles();
+  const { uploadFile, folderId } = useFiles();
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: async (acceptedFiles) => {
       setIsDragActive(false);
       const file = acceptedFiles[0];
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("files", file);
+      formData.append("parentId", folderId);
 
       try {
         const response = await axios.post(
@@ -23,7 +24,11 @@ const FullScreenDropzone = ({ children, onFilesUploaded }) => {
             headers: { "Content-Type": "multipart/form-data" },
           }
         );
-        uploadFile(response.data);
+        if (response.data.files.length > 0) {
+          uploadFile(response.data.files);
+        } else {
+          console.error("No files data returned from server");
+        }
       } catch (error) {
         console.error("Error uploading file:", error);
       }

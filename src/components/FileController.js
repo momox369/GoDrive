@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Dropdown } from "react-bootstrap";
 const FileContext = createContext();
 
 export const useFiles = () => useContext(FileContext);
@@ -26,11 +27,26 @@ export const FileProvider = ({ children }) => {
   const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
   const [folderFiles, setFolderFiles] = useState([]);
-  const [folderName, setfolderName] = useState(null);
+  const [folderId, setFolderId] = useState(null);
+  const [tab, setTab] = useState("starred");
+
+  const [fileTypes, setFileExtensions] = useState([]);
+
+  const updateFileTypes = (files) => {
+    const newExtensions = new Set(
+      files
+        .map((file) => {
+          const parts = file.name.split(".");
+          return parts.length > 1 ? parts.pop().toLowerCase() : undefined;
+        })
+        .filter((ext) => ext) // filters out undefined (files without extension)
+    );
+    setFileExtensions([...newExtensions]);
+  };
 
   const handleFolderDoubleClick = (folder) => {
-    setfolderName(folder.name); // Set the ID for the selected folder
-    navigate(`/folders/${folder.name}`); // Navigate to the folder's content
+    setFolderId(folder._id);
+    navigate(`/folders/${folder._id}`);
   };
 
   const handleSearchComplete = (results) => {
@@ -61,20 +77,39 @@ export const FileProvider = ({ children }) => {
 
   const fetchFilesAndFolders = useCallback(async () => {
     try {
-      const filesResponse = await axios.get("http://localhost:3001/files", {
-        params: { type: "files" },
-      });
-      const foldersResponse = await axios.get("http://localhost:3001/files", {
-        params: { type: "folders" },
-      });
-      setFiles(filesResponse.data);
-      setFolders(foldersResponse.data);
+      const endpoint = folderId ? `folder-contents/${folderId}` : "files";
+      const response = await axios.get(`http://localhost:3001/${endpoint}`);
+      if (folderId) {
+        setFolderFiles(response.data); // Files in the current folder
+      } else {
+        const filesResponse = response.data.filter(
+          (item) => item.type === "files"
+        );
+        const foldersResponse = response.data.filter(
+          (item) => item.type === "folders"
+        );
+        setFiles(filesResponse);
+        setFolders(foldersResponse);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
       setFiles([]);
       setFolders([]);
     }
+  }, [folderId]);
+  const fetchFiles = useCallback(async (extension = "") => {
+    try {
+      // Assuming your API can filter files based on extension or type
+      const response = await axios.get(`http://localhost:3001/files`, {
+        params: { extension },
+      });
+      setSearchResults(response.data); // Update the search results directly
+      updateFileTypes(response.data); // Optionally update file types based on results
+    } catch (error) {
+      console.error("Error fetching files:", error);
+    }
   }, []);
+
   const fetchSharedFiles = useCallback(async () => {
     try {
       const filesResponse = await axios.get(
@@ -206,7 +241,7 @@ export const FileProvider = ({ children }) => {
     fetchFilesAndFolders();
     fetchTrashedItems();
     fetchStarredItems();
-  }, []);
+  }, [folderId]);
 
   const toggleStar = useCallback(
     async (item) => {
@@ -276,18 +311,12 @@ export const FileProvider = ({ children }) => {
         const newSelection = selectedFiles.filter(
           (selectedItem) => selectedItem._id !== item._id
         );
-        console.log(
-          "Deselecting, new selection:",
-          newSelection.map((f) => f._id)
-        );
+
         setSelectedFiles(newSelection);
         console.log(isSelected);
       } else {
         const newSelection = [...selectedFiles, item];
-        console.log(
-          "Selecting, new selection:",
-          newSelection.map((f) => f._id)
-        );
+
         setSelectedFiles(newSelection);
       }
     } else {
@@ -299,19 +328,11 @@ export const FileProvider = ({ children }) => {
         const newSelection = selectedFolders.filter(
           (selectedItem) => selectedItem._id !== item._id
         );
-        console.log(
-          "Deselecting, new selection:",
-          newSelection.map((f) => f._id)
-        );
+
         setSelectedFolders(newSelection);
-        console.log(isSelected);
       } else {
-        // Select the item
         const newSelection = [...selectedFolders, item];
-        console.log(
-          "Selecting, new selection:",
-          newSelection.map((f) => f._id)
-        );
+
         setSelectedFolders(newSelection);
       }
     }
@@ -359,8 +380,15 @@ export const FileProvider = ({ children }) => {
         handleSearchComplete,
         folderFiles,
         setFolderFiles,
-        folderName,
+        folderId,
         handleFolderDoubleClick,
+        setFolderId,
+        tab,
+        setTab,
+        fetchStarredItems,
+        fileTypes,
+        updateFileTypes,
+        fetchFiles,
       }}
     >
       {children}

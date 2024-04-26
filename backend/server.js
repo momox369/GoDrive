@@ -35,11 +35,19 @@ const fileSchema = new mongoose.Schema({
   url: String,
   reason: String,
   owner: { type: String, required: true },
-  type: { type: String, default: "file" },
+  type: { type: String, default: "files" },
   isStarred: { type: Boolean, default: false },
   isDeleted: { type: Boolean, default: false },
-  sharedWith: [String],
+  mimeType: { type: String },
+  parentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    default: null,
+    optional: true,
+  }, // Parent folder ID
+  contents: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }], // Only for folders
+  sharedWith: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
+
 app.use(
   session({
     secret: SESSION_SECRET, // Ensure this is set and consistent
@@ -106,14 +114,57 @@ const File = mongoose.model("File", fileSchema);
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    const uploadPath = path.join(__dirname, "uploads");
+    fs.mkdirSync(uploadPath, { recursive: true }); // Ensure the directory exists
+    cb(null, uploadPath);
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    // Use originalname to ensure the name is defined
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.originalname.replace(/\s/g, "_") +
+        "-" +
+        uniqueSuffix +
+        path.extname(file.originalname)
+    );
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      if (req.body.parentId) {
+        File.findById(req.body.parentId, (err, parentFolder) => {
+          if (err || !parentFolder) {
+            cb(new Error("Parent folder not found"));
+          } else {
+            const uploadPath = path.join(
+              __dirname,
+              "uploads",
+              parentFolder.location
+            );
+            fs.mkdirSync(uploadPath, { recursive: true }); // Ensure the directory exists
+            cb(null, uploadPath);
+          }
+        });
+      } else {
+        const uploadPath = path.join(__dirname, "uploads");
+        fs.mkdirSync(uploadPath, { recursive: true });
+        cb(null, uploadPath);
+      }
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      const extension = path.extname(file.originalname).toLowerCase();
+      cb(null, cb(null, file.fieldname + "-" + uniqueSuffix + extension));
+    },
+    onFileUploadStart: function (file) {
+      file.extension = path.extname(file.originalname).toLowerCase();
+    },
+  }),
+});
+
 app.post("/register", async (req, res) => {
   const { email, username, password } = req.body;
 
@@ -205,56 +256,77 @@ app.get("/current-user", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 app.post(
   "/upload",
   cors(corsOptions),
-  upload.array("files", 10), // Change from .single to .array to accept multiple files
+  upload.array("files", 10),
   async (req, res) => {
+    console.log("Received files:", req.files);
+    console.log("Received body:", req.body);
+
+    let parentId = req.body.parentId;
+    console.log("ID: ", parentId);
+    if (parentId === "null" || parentId === "undefined" || !parentId) {
+      parentId = null;
+    }
+
     if (!req.files || req.files.length === 0) {
       return res.status(400).send("No files were uploaded.");
     }
-    const isFolder = req.query.isFolder;
-    const uploadDate = new Date().toLocaleDateString(); // Calculate date once for consistency
+
+    let parentFolder = null;
+    if (parentId) {
+      parentFolder = await File.findById(parentId);
+      console.log(parentFolder);
+      if (!parentFolder || parentFolder.type !== "folders") {
+        return res.status(400).send("Invalid or missing parent folder.");
+      }
+    }
 
     try {
-      // Map over all files, creating a File document for each
-      const fileMetadatas = req.files.map((file) => {
-        const fileMetadata = new File({
+      const fileMetadatas = req.files.map(async (file) => {
+        const newFile = new File({
           name: file.originalname,
           size: file.size,
-          location: `/uploads/${file.originalname}`,
-          url: `http://localhost:${PORT}/uploads/${file.originalname}`,
-          reason: `Uploaded on ${uploadDate}`,
-          owner: req.session.user.username, // Ensure you have a way to determine the owner
-          type: isFolder ? "folders" : "files", // Assuming all uploads are files; adjust as needed
+          location: `/uploads/${
+            parentId
+              ? `${parentFolder.location}/${file.filename}`
+              : file.filename
+          }`,
+          url: `http://localhost:${PORT}/uploads/${
+            parentId
+              ? `${parentFolder.location}/${file.filename}`
+              : file.filename
+          }`,
+          reason: `Uploaded on ${new Date().toLocaleDateString()}`,
+          owner: req.session.user.username,
+          type: "files",
+          parentId: parentId,
         });
-        return fileMetadata.save(); // Save to MongoDB
+        if (parentId) {
+          parentFolder.contents.push(newFile._id);
+          await parentFolder.save();
+        }
+        return await newFile.save();
       });
 
-      // Wait for all file metadata documents to be saved
-      const results = await Promise.all(fileMetadatas);
+      const savedFiles = await Promise.all(fileMetadatas);
 
-      // Transform the saved documents to include the custom _id format and other properties
-      const responsePayload = results.map((file) => ({
-        ...file.toObject(),
-        _id: file._id.toString(),
-      }));
-
-      res.status(201).json(responsePayload); // Send all metadata back as response
+      res.json({ message: "Files uploaded successfully", files: savedFiles });
     } catch (error) {
       console.error("Error saving file metadata:", error);
       res.status(500).send("Error saving file metadata");
     }
   }
 );
+
 app.post(
   "/upload-folder",
   cors(corsOptions),
   upload.array("files"),
   async (req, res) => {
     req.files.forEach((file) => {
-      const fullPath = path.join(__dirname, "uploads", file.originalname);
+      const fullPath = path.join(__dirname, "uploads", file.name);
       const dir = path.dirname(fullPath);
 
       if (!fs.existsSync(dir)) {
@@ -266,29 +338,45 @@ app.post(
     res.json({ message: "Files uploaded successfully" });
   }
 );
-
 app.post("/create-folder", cors(corsOptions), async (req, res) => {
-  const { folderName } = req.body;
+  const { folderName, parentId = null } = req.body;
   const uploadDate = new Date().toLocaleDateString();
   const reason = `Created on ${uploadDate}`;
-  const folderPath = path.join(__dirname, "uploads", folderName); // Construct the directory path
+  let parentFolder;
 
+  if (parentId) {
+    parentFolder = await File.findById(parentId);
+    if (!parentFolder || parentFolder.type !== "folders") {
+      return res.status(400).send("Invalid parent folder ID");
+    }
+  }
+
+  const folderPath = parentId
+    ? path.join(__dirname, "uploads", parentFolder.location, folderName)
+    : path.join(__dirname, "uploads", folderName);
   if (!fs.existsSync(folderPath)) {
-    fs.mkdirSync(folderPath, { recursive: true }); // Ensure recursive is true to create directories within directories if needed
+    fs.mkdirSync(folderPath, { recursive: true });
   }
 
   const folderMetadata = new File({
     name: folderName,
     size: 0,
-    location: `/uploads/${folderName}`,
-    url: `http://localhost:${PORT}/uploads/${folderName}`,
+    location: parentId ? `${parentFolder.location}/${folderName}` : folderName,
+    url: `http://localhost:${PORT}/uploads/${
+      parentId ? `${parentFolder.location}/${folderName}` : folderName
+    }`,
     reason: reason,
     owner: req.session.user.username,
     type: "folders",
+    parentId: parentId,
   });
 
   try {
     await folderMetadata.save();
+    if (parentId) {
+      parentFolder.contents.push(folderMetadata._id);
+      await parentFolder.save();
+    }
     res.json(folderMetadata);
   } catch (error) {
     console.error("Error creating folder:", error);
@@ -337,15 +425,26 @@ app.delete("/delete", async (req, res) => {
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get("/files", async (req, res) => {
-  const { type } = req.query;
+  const { type, extension } = req.query;
   try {
     const user = await User.findOne({ email: req.session.user.email });
+    console.log(user.email);
     if (!user) {
       res.status(400).send("User Not Found");
     }
     const query = type
-      ? { owner: user.username, type: type, isDeleted: false }
-      : { owner: user.username, isDeleted: false };
+      ? {
+          owner: user.username,
+          type: type,
+          isDeleted: false,
+          ...(extension && { extension }),
+        }
+      : {
+          owner: user.username,
+          isDeleted: false,
+          ...(extension && { extension }),
+        };
+
     const files = await File.find(query);
 
     res.json(
@@ -368,30 +467,35 @@ app.get("/files", async (req, res) => {
   }
 });
 
-app.get("/folder-contents/:folderName", async (req, res) => {
-  const uploadsDir = path.join(__dirname, "uploads");
-  const folderName = req.params.folderName;
-
-  // Resolve the folder path to prevent path traversal vulnerabilities
-  const folderPath = path.resolve(uploadsDir, folderName);
-  if (!folderPath.startsWith(uploadsDir)) {
-    return res.status(403).send("Access Denied");
-  }
-
-  fs.readdir(folderPath, { withFileTypes: true }, (err, files) => {
-    if (err) {
-      console.error("Failed to read directory:", err);
-      return res.status(500).send("Failed to read directory");
+app.get("/folder-contents/:folderId", async (req, res) => {
+  const folderId = req.params.folderId;
+  try {
+    const folder = await File.findById(folderId);
+    if (!folder) {
+      return res.status(404).send("Folder not found");
+    }
+    if (folder.type !== "folders") {
+      return res.status(400).send("Specified ID is not a folder");
     }
 
-    const results = files.map((dirent) => ({
-      name: dirent.name,
-      type: dirent.isDirectory() ? "folder" : "file",
-      path: path.join(folderName, dirent.name),
+    const contents = await File.find({ _id: { $in: folder.contents } });
+
+    const results = contents.map((file) => ({
+      _id: file._id,
+      name: file.name,
+      type: file.type,
+      location: file.location,
+      url: file.url,
+      owner: file.owner,
+      isStarred: file.isStarred,
+      isDeleted: file.isDeleted,
     }));
 
     res.json(results);
-  });
+  } catch (error) {
+    console.error("Failed to fetch folder contents:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 app.get("/filter", async (req, res) => {

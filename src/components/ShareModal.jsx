@@ -3,11 +3,11 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Modal, Button, Form, ListGroup } from "react-bootstrap";
 import { useAuth } from "./AuthProvider";
 
-const ShareModal = ({ show, onHide, onShare, fileId }) => {
+const ShareModal = ({ show, onHide, onShare, fileId, name }) => {
   const [search, setSearch] = useState("");
-
   const [selectedUser, setSelectedUser] = useState(null);
   const { fetchUsers, users, setUsers, error, setError } = useAuth();
+
   const handleUserSelect = (user) => {
     setSelectedUser(user);
     setSearch(`${user.username} (${user.email})`);
@@ -44,9 +44,9 @@ const ShareModal = ({ show, onHide, onShare, fileId }) => {
   return (
     <Modal show={show} onHide={handleClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Share File</Modal.Title>
+        <Modal.Title>Share "{name}"</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body style={{ marginTop: "1rem" }}>
         {error && <div className="text-danger">{error}</div>}
         <Form>
           <Form.Group>
@@ -58,7 +58,7 @@ const ShareModal = ({ show, onHide, onShare, fileId }) => {
               onChange={handleSearchChange}
             />
           </Form.Group>
-          {users.length > 0 && (
+          {search && users.length > 0 && (
             <ListGroup variant="flush">
               {users.map((user) => (
                 <ListGroup.Item

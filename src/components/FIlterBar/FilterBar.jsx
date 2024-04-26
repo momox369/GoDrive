@@ -32,9 +32,13 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
 
 const FilterBar = ({ activeFilters }) => {
-  const { filter, fileType } = useFiles();
+  const { filter, fileType, fileTypeDropdown, fileTypes, fetchFiles } =
+    useFiles();
   const { users, fetchUsers } = useAuth();
-
+  const [selectedDate, setSelectedDate] = useState("");
+  const handleFileTypeChange = (type) => {
+    fetchFiles(type);
+  };
   const [dropdownState, setDropdownState] = useState({
     type: {
       isSelected: false,
@@ -58,19 +62,46 @@ const FilterBar = ({ activeFilters }) => {
     },
   });
 
+  const handleDateChange = (e) => {
+    e.stopPropagation(); // Prevent dropdown from closing or triggering select
+    const newDate = e.target.value;
+    setSelectedDate(newDate);
+    console.log("Selected date: ", newDate);
+
+    // Update dropdown title to show the selected date
+    setDropdownState((prevState) => ({
+      ...prevState,
+      modified: {
+        // Assuming this date picker is under 'modified' key
+        ...prevState.modified,
+        isSelected: true,
+        selectedTitle: newDate, // Update title to show the selected date
+      },
+    }));
+  };
+
   const handleSelect = (key) => (eventKey, event) => {
-    const title = event.currentTarget.querySelector("span").textContent.trim();
+    if (event.target.type === "date") {
+      // Directly return if the event comes from date input
+      return;
+    }
+
+    const span = event.currentTarget.querySelector("span");
+    const title = span
+      ? span.textContent.trim()
+      : event.currentTarget.textContent.trim().split("\n")[0];
+
     setDropdownState((prevState) => ({
       ...prevState,
       [key]: {
         ...prevState[key],
         isSelected: true,
-        selectedTitle: title,
+        selectedTitle: title || "Default Title",
       },
     }));
   };
-
   const handleCancel = (key) => () => {
+    setSelectedDate("");
     setDropdownState((prevState) => ({
       ...prevState,
       [key]: {
@@ -182,7 +213,15 @@ const FilterBar = ({ activeFilters }) => {
         )}
 
         <Dropdown.Menu>
-          <Dropdown.Item
+          {fileTypes.map((type, index) => (
+            <Dropdown.Item
+              key={index}
+              onClick={() => handleFileTypeChange(type)}
+            >
+              {type.toUpperCase()}
+            </Dropdown.Item>
+          ))}
+          {/* <Dropdown.Item
             eventKey="1"
             className="file-types"
             style={{ fontWeight: "300" }}
@@ -259,7 +298,7 @@ const FilterBar = ({ activeFilters }) => {
               style={{ marginRight: "1rem" }}
             />
             <span>Video</span>
-          </Dropdown.Item>
+          </Dropdown.Item> */}
         </Dropdown.Menu>
       </Dropdown>
       <Dropdown as={ButtonGroup} onSelect={handleSelect("people")}>
@@ -324,7 +363,30 @@ const FilterBar = ({ activeFilters }) => {
         )}
         <Dropdown.Menu>
           <Dropdown.Item className="date-types" eventKey="1">
-            <span>Date 1</span>
+            Today
+          </Dropdown.Item>
+          <Dropdown.Item className="date-types" eventKey="1">
+            Last 7 Days
+          </Dropdown.Item>
+          <Dropdown.Item className="date-types" eventKey="1">
+            Last 30 Days
+          </Dropdown.Item>
+          <Dropdown.Item className="date-types" eventKey="1">
+            This Year (2024)
+          </Dropdown.Item>
+          <Dropdown.Item className="date-types" eventKey="1">
+            Last Year (2023)
+          </Dropdown.Item>
+          <Dropdown.Item className="date-types" eventKey="1">
+            <Form.Group>
+              <Form.Control
+                type="date"
+                value={selectedDate}
+                onChange={handleDateChange}
+                onClick={(e) => e.stopPropagation()}
+                placeholder="Select a date"
+              />
+            </Form.Group>
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>

@@ -12,6 +12,7 @@ import "./filemenu.scss";
 import { Button, Dropdown, Modal, Tab, Tabs } from "react-bootstrap";
 import { useFiles } from "../FileController";
 import ShareModal from "../ShareModal";
+import Directory from "../Directory";
 
 const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
   const [showModal, setShowModal] = useState(false);
@@ -20,7 +21,7 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
   const handleToggleNested = () => setShowNested(!showNested);
   const handleCloseModal = () => setShowModal(false);
 
-  const [key, setKey] = useState("home");
+  const [key, setKey] = useState("starred");
   const [showShareModal, setShareShowModal] = useState(false);
   const {
     fileType,
@@ -114,7 +115,10 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
             {folderCounter} selected
           </span>
         )}
-        <Button className="menu-icons">
+        <Button
+          className="menu-icons"
+          disabled={selectedFiles.length > 1 ? true : false}
+        >
           <UserPlus
             className="file-menu-icon"
             weight="bold"
@@ -127,6 +131,7 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
             onHide={handleCloseShareModal}
             onShare={shareItemWithUser}
             fileId={selectedFiles}
+            name={selectedFiles.map((file) => file.name)}
           />
         </Button>
         <Button className="menu-icons" onClick={handleDownload}>
@@ -147,39 +152,29 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
             style={{ margin: "0 5px", color: "#444746", cursor: "pointer" }}
           />
           <Modal size="lg" show={showModal} onHide={handleCloseModal} centered>
-            <Modal.Header>
-              <Modal.Title>Move </Modal.Title>
+            <Modal.Header closeButton>
+              <Modal.Title>Move Item</Modal.Title>
             </Modal.Header>
             <Modal.Body style={{ height: "50vh" }}>
-              <p>Current Location</p>
               <Tabs
-                style={{ marginTop: "1rem" }}
                 id="controlled-tab-example"
                 activeKey={key}
                 onSelect={(k) => setKey(k)}
                 className="mb-3"
               >
-                <Tab eventKey="profile" title="Starred">
-                  Starred
+                <Tab eventKey="starred" title="Starred">
+                  <Directory filter="starred" />
                 </Tab>
-                <Tab eventKey="contact" title="All Locations">
-                  All Locations
+                <Tab eventKey="allLocations" title="All Locations">
+                  <Directory filter="all" />
                 </Tab>
               </Tabs>
             </Modal.Body>
             <Modal.Footer>
-              <Button
-                className="new-folder-buttons"
-                variant="secondary"
-                onClick={handleCloseModal}
-              >
+              <Button variant="secondary" onClick={handleCloseModal}>
                 Cancel
               </Button>
-              <Button
-                className="new-folder-buttons"
-                variant="primary"
-                onClick={handleCloseModal}
-              >
+              <Button variant="primary" onClick={handleCloseModal}>
                 Move
               </Button>
             </Modal.Footer>

@@ -10,7 +10,7 @@ import axios from "axios";
 
 const New = () => {
   const [showModal, setShowModal] = useState(false);
-  const { uploadFile, fetchFilesAndFolders } = useFiles();
+  const { uploadFile, fetchFilesAndFolders, folderId } = useFiles(); // Assume currentFolderId is managed at a higher level
   const fileInputRef = useRef(null);
   const folderInputRef = useRef(null);
   const [folderName, setFolderName] = useState("");
@@ -18,13 +18,39 @@ const New = () => {
   const createFolder = async () => {
     try {
       const response = await axios.post("http://localhost:3001/create-folder", {
-        folderName: folderName,
+        folderName,
+        parentId: folderId,
       });
-      console.log(response.data);
       fetchFilesAndFolders();
       handleCloseModal();
     } catch (error) {
       console.error("Error creating folder:", error);
+    }
+  };
+
+  const handleFileChange = async (event) => {
+    const files = event.target.files;
+    if (files.length) {
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append("files", file);
+      });
+      formData.append("parentId", folderId);
+
+      try {
+        const response = await axios.post(
+          "http://localhost:3001/upload",
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+        if (response.data.files.length > 0) {
+          uploadFile(response.data.files);
+        } else {
+          console.error("No files data returned from server");
+        }
+      } catch (error) {
+        console.error("Error uploading files:", error);
+      }
     }
   };
 
@@ -36,29 +62,6 @@ const New = () => {
     folderInputRef.current.setAttribute("webkitdirectory", true);
     folderInputRef.current.setAttribute("directory", true);
     folderInputRef.current.click();
-  };
-
-  const handleFileChange = async (event) => {
-    const files = event.target.files;
-    if (files.length) {
-      const formData = new FormData();
-      // Append each file to formData
-      Array.from(files).forEach((file) => {
-        formData.append("files", file); // Ensure 'files' matches the backend's expected form key
-      });
-
-      try {
-        const response = await axios.post(
-          "http://localhost:3001/upload",
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
-        // Now pass the array of files directly to uploadFile
-        uploadFile(response.data);
-      } catch (error) {
-        console.error("Error uploading files:", error);
-      }
-    }
   };
 
   const handleOpenModal = () => setShowModal(true);

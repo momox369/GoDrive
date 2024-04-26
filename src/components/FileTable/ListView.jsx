@@ -23,16 +23,31 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
     fetchFilesAndFolders,
     shareItemWithUser,
     handleFolderDoubleClick,
+    files,
+    folders,
+    updateFileTypes,
   } = useFiles();
+  useEffect(() => {
+    updateFileTypes(items);
+  }, [items, updateFileTypes]);
   const [showModal, setShowModal] = useState(false);
   const [showShareModal, setShareShowModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [newName, setNewName] = useState("");
+  const [extension, setExtension] = useState("");
 
   const handleOpenModal = (file) => {
     console.log(file);
     setSelectedFile(file);
-    setNewName(file.name);
+    const lastDotIndex = file.name.lastIndexOf(".");
+    if (lastDotIndex > 0 && lastDotIndex < file.name.length - 1) {
+      setNewName(file.name.substring(0, lastDotIndex));
+      setExtension("." + file.name.substring(lastDotIndex + 1));
+    } else {
+      // Handle filenames without an extension
+      setNewName(file.name); // Use the full name if no valid extension exists
+      setExtension(""); // No extension found
+    }
     setShowModal(true);
   };
   const handleOpenShareModal = (file) => {
@@ -46,12 +61,11 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
   const handleSaveNameChange = useCallback(async () => {
     if (selectedFile) {
       try {
-        console.log(selectedFile._id);
         const response = await axios.post(
           "http://localhost:3001/update-filename",
           {
             id: selectedFile._id,
-            newName: newName,
+            newName: newName + extension,
           }
         );
         if (response.status === 200) {
@@ -63,7 +77,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
         console.error("Error updating file name:", error);
       }
     }
-  }, [selectedFile, newName, fetchFilesAndFolders]);
+  }, [selectedFile, newName, fetchFilesAndFolders, files, folders]);
 
   const handleStarClick = (event, item) => {
     event.preventDefault(); // Stop the browser from following the href in the anchor.
@@ -132,7 +146,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
             onClick={() => handleItemClick(item)}
             onDoubleClick={() => {
               if (item.type === "folders") {
-                handleFolderDoubleClick(item); // Call the function on double-click
+                handleFolderDoubleClick(item);
               }
             }}
             className={
@@ -147,7 +161,9 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
               }
               id="name"
             >
-              {item.name}
+              {item.name.length > 50
+                ? item.name.substring(0, 49) + "..."
+                : item.name}
             </td>
             <td
               className={
@@ -177,7 +193,9 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
               }
               id="location"
             >
-              {item.location}
+              {item.location.length > 20
+                ? item.location.substring(0, 19) + "..."
+                : item.name}
             </td>
             <td
               id="buttons-list"

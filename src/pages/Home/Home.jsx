@@ -34,6 +34,7 @@ function Home() {
     setSelectedFiles([]);
     setSelectedFolders([]);
   }, [location.pathname]);
+  
   return (
     <DisplayPages>
       <div className="content">
