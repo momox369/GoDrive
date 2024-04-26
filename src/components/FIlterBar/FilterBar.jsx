@@ -1,9 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { Button, ButtonGroup, Dropdown, ToggleButton, OverlayTrigger, Tooltip } from "react-bootstrap";
+import React, { useState } from "react";
+import {
+  Button,
+  ButtonGroup,
+  Dropdown,
+  OverlayTrigger,
+  Tooltip,
+  ToggleButton
+} from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./filterbar.scss";
-import { File, Check, X } from "@phosphor-icons/react/dist/ssr";
-import { CalendarBlank, CirclesThree, FileDoc, FilePdf, FileTxt, FileXls, FileZip, Folder, HardDrives, User } from "@phosphor-icons/react";
+import { File, Check, X, User, CalendarBlank, Folder, FileDoc, FilePdf, FileTxt, FileXls, FileZip, HardDrives, CirclesThree } from "@phosphor-icons/react";
 import { FileText } from "react-bootstrap-icons";
 import { useFiles } from "../FileController";
 import { useLocation } from "react-router-dom";
@@ -15,21 +21,40 @@ const FilterBar = ({ activeFilters }) => {
       isSelected: false,
       icon: <File size={15} />,
       selectedTitle: "Type",
+      options: [
+        { icon: <FileDoc size={25} color="#2a5599" />, title: "Word Document" },
+        { icon: <FileXls size={25} color="#28754c" />, title: "Excel Sheets" },
+        { icon: <FileTxt size={25} color="#828282" />, title: "Text Files" },
+        { icon: <FileZip size={25} color="#050505" />, title: "Zip and Rar Files" },
+        { icon: <FilePdf size={25} color="#ea4335" />, title: "PDF" }
+      ]
     },
     people: {
       isSelected: false,
       icon: <User size={15} />,
       selectedTitle: "People",
+      options: [
+        { title: "Person 1" },
+        { title: "Person 2" }
+      ]
     },
     modified: {
       isSelected: false,
       icon: <CalendarBlank size={15} />,
       selectedTitle: "Modified",
+      options: [
+        { title: "Date 1" },
+        { title: "Date 2" }
+      ]
     },
     location: {
       isSelected: false,
       icon: <Folder size={15} />,
       selectedTitle: "Location",
+      options: [
+        { icon: <HardDrives size={22} />, title: "My Drive" },
+        { icon: <CirclesThree size={22} />, title: "Shared With Me" }
+      ]
     },
   });
 
@@ -145,7 +170,11 @@ const FilterBar = ({ activeFilters }) => {
               </Dropdown.Toggle>
             )}
             <Dropdown.Menu>
-              {/* Dropdown items */}
+              {dropdown.options.map((option, index) => (
+                <Dropdown.Item eventKey={index} key={index}>
+                  {option.icon}{option.title}
+                </Dropdown.Item>
+              ))}
             </Dropdown.Menu>
           </Dropdown>
         ))}
