@@ -138,7 +138,6 @@ export const FileProvider = ({ children }) => {
         params: { type: "folders" },
       });
       const starredFolders = foldersResponse.data;
-
       setStarredItems({ files: starredFiles, folders: starredFolders });
     } catch (error) {
       console.error("Error fetching starred items:", error);
@@ -246,8 +245,8 @@ export const FileProvider = ({ children }) => {
     [fetchStarredItems]
   );
 
-  const uploadFile = useCallback((newFile) => {
-    setFiles((prevFiles) => [...prevFiles, newFile]);
+  const uploadFile = useCallback((newFiles) => {
+    setFiles((prevFiles) => [...prevFiles, ...newFiles]);
   }, []);
 
   useEffect(() => {

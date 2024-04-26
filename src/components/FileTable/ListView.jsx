@@ -1,17 +1,19 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Button, Modal, Table } from "react-bootstrap";
+import { Button, Dropdown, Modal, Table } from "react-bootstrap";
 import {
   Folder,
   Star,
   UserPlus,
   DownloadSimple,
   PencilSimpleLine,
+  DotsThreeVertical,
 } from "@phosphor-icons/react";
 import "./filetable.scss";
 import { useFiles } from "../FileController";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ShareModal from "../ShareModal";
+import { ThreeDotsVertical } from "react-bootstrap-icons";
 
 const ListView = ({ items, isSelected, handleItemClick }) => {
   const [hoveredId, setHoveredId] = useState(null);
@@ -211,6 +213,12 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
                   onClick={(e) => handlePenClick(e, item)}
                 />
                 <Star
+                  size={20}
+                  className="action-icon"
+                  weight={isItemStarred(item) ? "fill" : "regular"}
+                  onClick={(event) => handleStarClick(event, item)}
+                />
+                <ThreeDotsVertical
                   size={20}
                   className="action-icon"
                   weight={isItemStarred(item) ? "fill" : "regular"}

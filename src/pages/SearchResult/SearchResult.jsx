@@ -37,21 +37,6 @@ export default function SearchResult() {
     <DisplayPages>
       <div className="content">
         <StaticHeader title={"Search Results"} />
-        {/* {(selectedFiles.length > 0 && filterType === "files") ||
-        (selectedFolders.length > 0 && filterType === "folders") ? (
-          <FileMenu
-            selectedFileIds={fileIds}
-            selectedFolderIds={folderIds}
-            fileCounter={fileCounter}
-            folderCounter={folderCounter}
-            resetCounter={resetCounter}
-            selectedFolders={selectedFolders}
-            selectedFiles={selectedFiles}
-          />
-        ) : (
-          <FilterBar activeFilters={activeFilters} />
-        )} */}
-
         {viewMode === "list" ? (
           <ListView
             items={searchResults}

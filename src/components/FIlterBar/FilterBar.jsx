@@ -3,6 +3,8 @@ import {
   Button,
   ButtonGroup,
   Dropdown,
+  DropdownItem,
+  Form,
   OverlayTrigger,
   ToggleButton,
   Tooltip,
@@ -27,9 +29,12 @@ import {
 import { FileText } from "react-bootstrap-icons";
 import { useFiles } from "../FileController";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "../AuthProvider";
 
 const FilterBar = ({ activeFilters }) => {
   const { filter, fileType } = useFiles();
+  const { users, fetchUsers } = useAuth();
+
   const [dropdownState, setDropdownState] = useState({
     type: {
       isSelected: false,
@@ -54,12 +59,13 @@ const FilterBar = ({ activeFilters }) => {
   });
 
   const handleSelect = (key) => (eventKey, event) => {
+    const title = event.currentTarget.querySelector("span").textContent.trim();
     setDropdownState((prevState) => ({
       ...prevState,
       [key]: {
         ...prevState[key],
         isSelected: true,
-        selectedTitle: event.currentTarget.textContent.trim(),
+        selectedTitle: title,
       },
     }));
   };
@@ -187,7 +193,7 @@ const FilterBar = ({ activeFilters }) => {
               weight="fill"
               style={{ marginRight: "1rem" }}
             />
-            Word Document
+            <span>Word Document</span>
           </Dropdown.Item>
           <Dropdown.Item
             eventKey="2"
@@ -200,7 +206,7 @@ const FilterBar = ({ activeFilters }) => {
               weight="fill"
               style={{ marginRight: "1rem" }}
             />
-            Excel Sheet
+            <span>Excel Sheet</span>
           </Dropdown.Item>
           <Dropdown.Item
             eventKey="3"
@@ -213,7 +219,7 @@ const FilterBar = ({ activeFilters }) => {
               weight="fill"
               style={{ marginRight: "1rem" }}
             />
-            Text File
+            <span>Text File</span>
           </Dropdown.Item>
           <Dropdown.Item
             eventKey="4"
@@ -226,7 +232,7 @@ const FilterBar = ({ activeFilters }) => {
               weight="fill"
               style={{ marginRight: "1rem" }}
             />
-            Zip and Rar Files
+            <span>Zip and Rar Files</span>
           </Dropdown.Item>
           <Dropdown.Item
             eventKey="5"
@@ -239,7 +245,7 @@ const FilterBar = ({ activeFilters }) => {
               weight="fill"
               style={{ marginRight: "1rem" }}
             />
-            PDF
+            <span>PDF</span>
           </Dropdown.Item>
           <Dropdown.Item
             eventKey="6"
@@ -252,7 +258,7 @@ const FilterBar = ({ activeFilters }) => {
               weight="fill"
               style={{ marginRight: "1rem" }}
             />
-            Video
+            <span>Video</span>
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
@@ -282,13 +288,12 @@ const FilterBar = ({ activeFilters }) => {
             {dropdownState.people.selectedTitle}
           </Dropdown.Toggle>
         )}
-        <Dropdown.Menu>
-          <Dropdown.Item className="person-types" eventKey="1">
-            Person 1
-          </Dropdown.Item>
-          <Dropdown.Item className="person-types" eventKey="2">
-            Person 2
-          </Dropdown.Item>
+        <Dropdown.Menu as={CustomMenu}>
+          {users.map((user, index) => (
+            <Dropdown.Item eventKey={index} value={user.username}>
+              <span>{user.username}</span>
+            </Dropdown.Item>
+          ))}
         </Dropdown.Menu>
       </Dropdown>
       <Dropdown as={ButtonGroup} onSelect={handleSelect("modified")}>
@@ -319,10 +324,7 @@ const FilterBar = ({ activeFilters }) => {
         )}
         <Dropdown.Menu>
           <Dropdown.Item className="date-types" eventKey="1">
-            Date 1
-          </Dropdown.Item>
-          <Dropdown.Item className="date-types" eventKey="2">
-            Date 2
+            <span>Date 1</span>
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
@@ -355,15 +357,15 @@ const FilterBar = ({ activeFilters }) => {
         <Dropdown.Menu className="drop-location">
           <Dropdown.Item eventKey="1" className="location-item">
             <Check size={22} weight="bold" className="drop-icon" />
-            Anywhere in Drive
+            <span> Anywhere in Drive</span>
           </Dropdown.Item>
           <Dropdown.Item eventKey="2" className="location-item">
             <HardDrives size={22} weight="bold" className="drop-icon" />
-            My Drive
+            <span>My Drive</span>
           </Dropdown.Item>
           <Dropdown.Item eventKey="2" className="location-item">
             <CirclesThree size={22} weight="bold" className="drop-icon" />
-            Shared With Me
+            <span>Shared With Me</span>
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
@@ -385,3 +387,31 @@ const FilterBar = ({ activeFilters }) => {
 };
 
 export default FilterBar;
+const CustomMenu = React.forwardRef(
+  ({ children, style, className, "aria-labelledby": labeledBy }, ref) => {
+    const [value, setValue] = useState("");
+
+    return (
+      <div
+        ref={ref}
+        style={style}
+        className={className}
+        aria-labelledby={labeledBy}
+      >
+        <Form.Control
+          autoFocus
+          className="mx-3 my-2 w-auto"
+          placeholder="Type to filter..."
+          onChange={(e) => setValue(e.target.value)}
+          value={value}
+        />
+        <ul className="list-unstyled">
+          {React.Children.toArray(children).filter(
+            (child) =>
+              !value || child.props.children.toLowerCase().startsWith(value)
+          )}
+        </ul>
+      </div>
+    );
+  }
+);

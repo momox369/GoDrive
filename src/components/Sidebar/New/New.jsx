@@ -39,10 +39,13 @@ const New = () => {
   };
 
   const handleFileChange = async (event) => {
-    const file = event.target.files[0];
-    if (file) {
+    const files = event.target.files;
+    if (files.length) {
       const formData = new FormData();
-      formData.append("file", file);
+      // Append each file to formData
+      Array.from(files).forEach((file) => {
+        formData.append("files", file); // Ensure 'files' matches the backend's expected form key
+      });
 
       try {
         const response = await axios.post(
@@ -50,12 +53,14 @@ const New = () => {
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
+        // Now pass the array of files directly to uploadFile
         uploadFile(response.data);
       } catch (error) {
-        console.error("Error uploading file:", error);
+        console.error("Error uploading files:", error);
       }
     }
   };
+
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
@@ -118,6 +123,7 @@ const New = () => {
         ref={fileInputRef}
         onChange={handleFileChange}
         style={{ display: "none" }}
+        multiple
       />
       <input
         type="file"

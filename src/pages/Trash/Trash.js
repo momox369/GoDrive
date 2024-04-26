@@ -34,6 +34,7 @@ function Trash() {
     trashedItems,
     fetchTrashedItems,
   } = useFiles();
+  const { viewMode } = useViewMode();
   const location = useLocation();
 
   useEffect(() => {
@@ -55,11 +56,19 @@ function Trash() {
         <div className="all-items">
           <div className="all-items-folders">
             {" "}
-            <ListView
-              items={trashedItems}
-              isSelected={isSelected}
-              handleItemClick={handleItemClick}
-            ></ListView>
+            {viewMode === "list" ? (
+              <ListView
+                items={trashedItems}
+                isSelected={isSelected}
+                handleItemClick={handleItemClick}
+              ></ListView>
+            ) : (
+              <GridView
+                items={trashedItems}
+                isSelected={isSelected}
+                handleItemClick={handleItemClick}
+              ></GridView>
+            )}
           </div>
         </div>
       </div>

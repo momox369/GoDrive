@@ -43,37 +43,48 @@ function Starred() {
     setSelectedFiles([]);
     setSelectedFolders([]);
   }, [location.pathname, fetchSharedFiles]);
-
+  const allItems = sharedFiles.files.concat(sharedFiles.folders);
   return (
-    <DisplayPages>
-      <div className="content drive">
-        <StaticHeader title={"Starred"} />
-        {selectedFiles.length > 0 || selectedFolders.length > 0 ? (
-          <FileMenu selectedFileIds={fileIds} selectedFolderIds={folderIds} />
-        ) : (
-          <FilterBar activeFilters={activeFilters} />
-        )}
-        <div className="all-items">
-          <div className="all-items-folders">
-            {" "}
-            <p>Folders</p>
-            <GridFolderView
-              items={starredItems.folders}
-              isSelected={isSelected}
-              handleItemClick={handleItemClick}
-            />
-          </div>
-          <div className="all-items-files">
-            <p>Files</p>
-            <ListView
-              items={sharedFiles.files}
-              isSelected={isSelected}
-              handleItemClick={handleItemClick}
-            />
-          </div>
+    <>
+      <DisplayPages>
+        <div className="content drive">
+          <StaticHeader title={"Shared With Me"} />
+          {selectedFiles.length > 0 || selectedFolders.length > 0 ? (
+            <FileMenu selectedFileIds={fileIds} selectedFolderIds={folderIds} />
+          ) : (
+            <FilterBar activeFilters={activeFilters} />
+          )}
+          {viewMode === "grid" ? (
+            <div className="all-items">
+              <div className="all-items-folders">
+                <p>Folders</p>
+                <GridFolderView
+                  items={sharedFiles.folders}
+                  isSelected={isSelected}
+                  handleItemClick={handleItemClick}
+                />
+              </div>
+              <div className="all-items-files">
+                <p>Files</p>
+                <GridView
+                  items={sharedFiles.files}
+                  isSelected={isSelected}
+                  handleItemClick={handleItemClick}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="all-items">
+              <ListView
+                items={allItems}
+                isSelected={isSelected}
+                handleItemClick={handleItemClick}
+              />
+            </div>
+          )}
         </div>
-      </div>
-    </DisplayPages>
+      </DisplayPages>
+    </>
   );
 }
 

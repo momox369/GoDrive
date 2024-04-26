@@ -1,5 +1,10 @@
 import React from "react";
-import { FileDoc, FileXls, Folder } from "@phosphor-icons/react";
+import {
+  DotsThreeVertical,
+  FileDoc,
+  FileXls,
+  Folder,
+} from "@phosphor-icons/react";
 import "./filetable.scss";
 
 const GridView = ({ items, isSelected, handleItemClick }) => (
@@ -14,6 +19,7 @@ const GridView = ({ items, isSelected, handleItemClick }) => (
       >
         <div className="file-name">
           <p>{item.name}</p>
+          <DotsThreeVertical size={20} />
         </div>
         {item.type === "folders" ? (
           <div className="file-name">

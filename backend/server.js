@@ -209,28 +209,39 @@ app.get("/current-user", async (req, res) => {
 app.post(
   "/upload",
   cors(corsOptions),
-  upload.single("file"),
+  upload.array("files", 10), // Change from .single to .array to accept multiple files
   async (req, res) => {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).send("No files were uploaded.");
+    }
     const isFolder = req.query.isFolder;
-    const { filename, size } = req.file;
-    const uploadDate = new Date().toLocaleDateString();
-    const reason = `Uploaded on ${uploadDate}`;
+    const uploadDate = new Date().toLocaleDateString(); // Calculate date once for consistency
 
-    const fileMetadata = new File({
-      name: filename,
-      size: size,
-      location: `/uploads/${filename}`,
-      url: `http://localhost:${PORT}/uploads/${filename}`,
-      reason: reason,
-      owner: req.session.user.username,
-      type: isFolder ? "folders" : "files",
-    });
     try {
-      await fileMetadata.save();
-      res.json({
-        ...fileMetadata.toObject(),
-        _id: fileMetadata._id.toString(),
+      // Map over all files, creating a File document for each
+      const fileMetadatas = req.files.map((file) => {
+        const fileMetadata = new File({
+          name: file.originalname,
+          size: file.size,
+          location: `/uploads/${file.originalname}`,
+          url: `http://localhost:${PORT}/uploads/${file.originalname}`,
+          reason: `Uploaded on ${uploadDate}`,
+          owner: req.session.user.username, // Ensure you have a way to determine the owner
+          type: isFolder ? "folders" : "files", // Assuming all uploads are files; adjust as needed
+        });
+        return fileMetadata.save(); // Save to MongoDB
       });
+
+      // Wait for all file metadata documents to be saved
+      const results = await Promise.all(fileMetadatas);
+
+      // Transform the saved documents to include the custom _id format and other properties
+      const responsePayload = results.map((file) => ({
+        ...file.toObject(),
+        _id: file._id.toString(),
+      }));
+
+      res.status(201).json(responsePayload); // Send all metadata back as response
     } catch (error) {
       console.error("Error saving file metadata:", error);
       res.status(500).send("Error saving file metadata");
@@ -382,7 +393,6 @@ app.get("/folder-contents/:folderName", async (req, res) => {
     res.json(results);
   });
 });
-
 
 app.get("/filter", async (req, res) => {
   const { type } = req.query;
