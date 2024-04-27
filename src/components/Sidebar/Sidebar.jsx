@@ -49,7 +49,7 @@ const Sidebar = () => {
       )}
       <ul
         className="nav nav-pills flex-column mb-auto custom-nav-pills"
-        style={{ display: isOpen ? "block" : "none" }}
+        style={{ display: isOpen ? "block" : "none", marginTop: "1rem" }}
       >
         {navItems.map((navItem, index) => (
           <li className="nav-item" key={index}>

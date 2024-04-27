@@ -25,23 +25,102 @@ export const FileProvider = ({ children }) => {
   const fileIds = selectedFiles.map((file) => file._id);
   const folderIds = selectedFolders.map((folder) => folder._id);
   const [searchResults, setSearchResults] = useState([]);
+  const [searchFilterResults, setSearchFilterResults] = useState([]);
   const navigate = useNavigate();
   const [folderFiles, setFolderFiles] = useState([]);
   const [folderId, setFolderId] = useState(null);
   const [tab, setTab] = useState("starred");
 
   const [fileTypes, setFileExtensions] = useState([]);
+  const mimeTypeToExtension = {
+    "application/pdf": ".pdf",
+    "application/msword": ".doc",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+      ".docx",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.template":
+      ".dotx",
+    "application/vnd.ms-word.document.macroEnabled.12": ".docm",
+    "application/vnd.ms-word.template.macroEnabled.12": ".dotm",
+    "application/vnd.ms-excel": ".xls",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+      ".xlsx",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.template":
+      ".xltx",
+    "application/vnd.ms-excel.sheet.macroEnabled.12": ".xlsm",
+    "application/vnd.ms-excel.template.macroEnabled.12": ".xltm",
+    "application/vnd.ms-excel.addin.macroEnabled.12": ".xlam",
+    "application/vnd.ms-excel.sheet.binary.macroEnabled.12": ".xlsb",
+    "application/vnd.ms-powerpoint": ".ppt",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+      ".pptx",
+    "application/vnd.openxmlformats-officedocument.presentationml.template":
+      ".potx",
+    "application/vnd.openxmlformats-officedocument.presentationml.slideshow":
+      ".ppsx",
+    "application/vnd.ms-powerpoint.addin.macroEnabled.12": ".ppam",
+    "application/vnd.ms-powerpoint.presentation.macroEnabled.12": ".pptm",
+    "application/vnd.ms-powerpoint.template.macroEnabled.12": ".potm",
+    "application/vnd.ms-powerpoint.slideshow.macroEnabled.12": ".ppsm",
+    "application/vnd.ms-access": ".mdb",
+    "application/pdf": ".pdf",
+    "application/msword": ".doc",
+    // More existing types...
+
+    // Image types
+    "image/apng": "APNG",
+    "image/avif": "AVIF",
+    "image/gif": "GIF",
+    "image/jpeg": "JPEG",
+    "image/png": "PNG",
+    "image/svg+xml": "SVG",
+    "image/webp": "WEBP",
+
+    // Compressed files
+    "application/zip": "ZIP",
+    "application/x-rar-compressed": "RAR",
+
+    // PDF (already included, added for completeness)
+    "application/pdf": "PDF",
+
+    // Video formats
+    "video/mp4": "MP4 Video",
+    "video/x-matroska": "MKV Video",
+    "video/webm": "WebM Video",
+    "video/avi": "AVI Video",
+    "video/mpeg": "MPEG Video",
+  };
 
   const updateFileTypes = (files) => {
-    const newExtensions = new Set(
-      files
-        .map((file) => {
-          const parts = file.name.split(".");
-          return parts.length > 1 ? parts.pop().toLowerCase() : undefined;
-        })
-        .filter((ext) => ext) // filters out undefined (files without extension)
-    );
-    setFileExtensions([...newExtensions]);
+    // Create a map to ensure unique types based on MIME type
+    const newTypesMap = new Map();
+
+    // Populate the map, thus deduplicating by mimeType
+    files.forEach((file) => {
+      const mimeType = file.mimeType;
+      if (!newTypesMap.has(mimeType) && filterType === "files") {
+        newTypesMap.set(mimeType, {
+          label: mimeTypeToExtension[mimeType],
+          mimeType: mimeType,
+        });
+      }
+    });
+
+    // Convert the map values to an array of unique types
+    const uniqueNewTypes = Array.from(newTypesMap.values());
+
+    // Use functional update form of setState
+    setFileExtensions((currentTypes) => {
+      const currentMimeTypes = new Set(
+        currentTypes.map((type) => type.mimeType)
+      );
+      const filteredNewTypes = uniqueNewTypes.filter(
+        (type) => !currentMimeTypes.has(type.mimeType)
+      );
+
+      return filteredNewTypes.length > 0
+        ? [...currentTypes, ...filteredNewTypes]
+        : currentTypes;
+    });
   };
 
   const handleFolderDoubleClick = (folder) => {
@@ -49,9 +128,7 @@ export const FileProvider = ({ children }) => {
     navigate(`/folders/${folder._id}`);
   };
 
-  const handleSearchComplete = (results) => {
-    setSearchResults(results);
-  };
+  const handleSearchComplete = (results) => {};
   const [activeFilters, setActiveFilters] = useState({
     type: {
       lastSelectedTitle: "Type",
@@ -77,38 +154,49 @@ export const FileProvider = ({ children }) => {
 
   const fetchFilesAndFolders = useCallback(async () => {
     try {
+      // Fetch personal files and folders
       const endpoint = folderId ? `folder-contents/${folderId}` : "files";
-      const response = await axios.get(`http://localhost:3001/${endpoint}`);
-      if (folderId) {
-        setFolderFiles(response.data); // Files in the current folder
-      } else {
-        const filesResponse = response.data.filter(
-          (item) => item.type === "files"
-        );
-        const foldersResponse = response.data.filter(
-          (item) => item.type === "folders"
-        );
-        setFiles(filesResponse);
-        setFolders(foldersResponse);
-      }
+      const personalFilesResponse = await axios.get(
+        `http://localhost:3001/${endpoint}`
+      );
+
+      const sharedFilesResponse = await axios.get(
+        "http://localhost:3001/files-shared-with-me",
+        {
+          params: { type: "files" },
+          withCredentials: true,
+        }
+      );
+
+      const personalFiles = personalFilesResponse.data.filter(
+        (item) => item.type === "files"
+      );
+      const sharedFiles = sharedFilesResponse.data; // Assuming all are files
+
+      const combinedFiles = [...personalFiles, ...sharedFiles];
+
+      setFiles(combinedFiles);
+      const foldersResponse = personalFilesResponse.data.filter(
+        (item) => item.type === "folders"
+      );
+      setFolders(foldersResponse);
     } catch (error) {
       console.error("Error fetching data:", error);
       setFiles([]);
       setFolders([]);
     }
-  }, [folderId]);
-  const fetchFiles = useCallback(async (extension = "") => {
+  }, [folderId]); // Make sure this depends on all relevant dependencies
+
+  const fetchFiles = useCallback(async () => {
     try {
-      // Assuming your API can filter files based on extension or type
-      const response = await axios.get(`http://localhost:3001/files`, {
-        params: { extension },
-      });
-      setSearchResults(response.data); // Update the search results directly
-      updateFileTypes(response.data); // Optionally update file types based on results
+      const response = await axios.get("http://localhost:3001/files");
+      console.log("fetch files response: ", response.data);
+
+      updateFileTypes(response.data);
     } catch (error) {
       console.error("Error fetching files:", error);
     }
-  }, []);
+  }, [searchResults, fileTypes]);
 
   const fetchSharedFiles = useCallback(async () => {
     try {

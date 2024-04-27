@@ -7,6 +7,8 @@ import {
   DownloadSimple,
   PencilSimpleLine,
   DotsThreeVertical,
+  ArrowDown,
+  ArrowUp,
 } from "@phosphor-icons/react";
 import "./filetable.scss";
 import { useFiles } from "../FileController";
@@ -14,9 +16,15 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ShareModal from "../ShareModal";
 import { ThreeDotsVertical } from "react-bootstrap-icons";
+import { useLocation } from "react-router-dom";
 
 const ListView = ({ items, isSelected, handleItemClick }) => {
   const [hoveredId, setHoveredId] = useState(null);
+  const [sortConfig, setSortConfig] = useState({
+    key: "name",
+    direction: "ascending",
+  });
+
   const {
     toggleStar,
     starredItems,
@@ -57,7 +65,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
 
   const handleCloseModal = () => setShowModal(false);
   const handleCloseShareModal = () => setShareShowModal(false);
-
+  const directoryLocation = useLocation();
   const handleSaveNameChange = useCallback(async () => {
     if (selectedFile) {
       try {
@@ -126,19 +134,84 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
       console.error("Failed to download file:", error);
     }
   };
+  const sortedItems = useCallback(() => {
+    let sortableItems = [...items]; // Create a copy of items to sort
+    sortableItems.sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === "ascending" ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === "ascending" ? 1 : -1;
+      }
+      return 0;
+    });
+    return sortableItems;
+  }, [items, sortConfig]);
+
+  const handleSort = (key) => {
+    let direction = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
+  const sortArrow = (key) => {
+    if (sortConfig.key !== key) return null;
+    return sortConfig.direction === "ascending" ? (
+      <ArrowUp size={20} />
+    ) : (
+      <ArrowDown size={20} />
+    );
+  };
   return (
     <Table hover className="file-table">
       <thead style={{ position: "sticky", top: "0" }}>
         <tr>
-          <th>Name</th>
-          <th>Reason</th>
+          <th onClick={() => handleSort("name")}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                width: "fit-content",
+                justifyContent: "space-between",
+              }}
+            >
+              Name {sortArrow("name")}
+            </div>
+          </th>
+          <th onClick={() => handleSort("reason")}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                width: "fit-content",
+                justifyContent: "space-between",
+              }}
+            >
+              Reason {sortArrow("reason")}
+            </div>
+          </th>
           <th>Owner</th>
           <th>Location</th>
+          {directoryLocation.pathname === "/drive" && (
+            <th onClick={() => handleSort("size")}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  width: "fit-content",
+                  justifyContent: "space-between",
+                }}
+              >
+                File Size {sortArrow("size")}
+              </div>
+            </th>
+          )}
           <th></th>
         </tr>
       </thead>
       <tbody>
-        {items.map((item) => (
+        {sortedItems().map((item) => (
           <tr
             key={item._id}
             onMouseEnter={() => setHoveredId(item._id)}
@@ -195,8 +268,20 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
             >
               {item.location.length > 20
                 ? item.location.substring(0, 19) + "..."
-                : item.name}
+                : item.location}
             </td>
+            {directoryLocation.pathname === "/drive" && (
+              <td
+                className={
+                  isSelected.some((f) => f._id === item._id)
+                    ? "selected-file"
+                    : ""
+                }
+                id="location"
+              >
+                {item.size} Bytes
+              </td>
+            )}
             <td
               id="buttons-list"
               className={

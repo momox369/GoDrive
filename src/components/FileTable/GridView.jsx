@@ -8,6 +8,7 @@ import {
 import "./filetable.scss";
 
 const GridView = ({ items, isSelected, handleItemClick }) => (
+  
   <div className="grid-container">
     {items.map((item) => (
       <div

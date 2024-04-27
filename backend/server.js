@@ -135,9 +135,11 @@ const storage = multer.diskStorage({
     }
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const extension = path.extname(file.originalname).toLowerCase();
-    cb(null, file.fieldname + "-" + uniqueSuffix + extension);
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(
+      null,
+      `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`
+    );
   },
   onFileUploadStart: function (file) {
     file.extension = path.extname(file.originalname).toLowerCase();
@@ -281,6 +283,7 @@ app.post(
           }`,
           reason: `Uploaded on ${new Date().toLocaleDateString()}`,
           owner: req.session.user.username,
+          mimeType: file.mimetype,
           type: "files",
           parentId: parentId,
         });
@@ -439,6 +442,7 @@ app.get("/files", async (req, res) => {
           "Uploaded on " +
           new Date(file._id.getTimestamp()).toLocaleDateString(),
         owner: file.owner,
+        mimeType: file.mimeType,
         type: file.type,
       }))
     );
@@ -468,6 +472,7 @@ app.get("/folder-contents/:folderId", async (req, res) => {
       location: file.location,
       url: file.url,
       owner: file.owner,
+      mimeType: file.mimeType,
       isStarred: file.isStarred,
       isDeleted: file.isDeleted,
     }));
@@ -491,6 +496,7 @@ app.get("/filter", async (req, res) => {
         name: file.name,
         size: file.size,
         location: file.location,
+        mimeType: file.mimeType,
         url: file.url,
         reason:
           "Uploaded on " +
@@ -578,6 +584,7 @@ app.get("/trash", async (req, res) => {
         type: file.type,
         owner: file.owner,
         location: file.location,
+        mimeType: file.mimeType,
         reason: file.reason,
       }))
     );
@@ -707,5 +714,19 @@ app.get("/files/advanced-search", async (req, res) => {
     res.json(results);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+app.get("/files/search", async (req, res) => {
+  const { mimeType, owner, date } = req.query;
+  let query = {};
+  if (mimeType) query.mimeType = mimeType;
+  if (owner) query.owner = owner;
+  if (date) query.date = { $gte: new Date(date).toISOString() }; // Adjust based on your date handling
+
+  try {
+    const files = await File.find(query);
+    res.json(files);
+  } catch (error) {
+    res.status(500).json({ message: "Error searching for files", error });
   }
 });

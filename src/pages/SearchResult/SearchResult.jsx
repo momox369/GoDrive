@@ -51,6 +51,6 @@ export default function SearchResult() {
           />
         )}
       </div>
-    </DisplayPages>
+    </DisplayPages> 
   );
 }

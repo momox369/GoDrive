@@ -28,17 +28,34 @@ import {
 } from "@phosphor-icons/react";
 import { FileText } from "react-bootstrap-icons";
 import { useFiles } from "../FileController";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
+import axios from "axios";
 
 const FilterBar = ({ activeFilters }) => {
-  const { filter, fileType, fileTypeDropdown, fileTypes, fetchFiles } =
-    useFiles();
-  const { users, fetchUsers } = useAuth();
+  const {
+    fetchFiles,
+    fileTypes,
+    setSearchResults,
+    filter,
+    fileType,
+    searchResults,
+    files,
+    folders,
+    starredItems,
+    sharedItems,
+    trashedItems,
+  } = useFiles();
+  const { users } = useAuth();
+  const AllItems = files.concat(folders);
   const [selectedDate, setSelectedDate] = useState("");
-  const handleFileTypeChange = (type) => {
-    fetchFiles(type);
-  };
+  const [filters, setFilters] = useState({
+    type: "",
+    owner: "",
+    date: "",
+    location: "",
+  });
+  const navigate = useNavigate();
   const [dropdownState, setDropdownState] = useState({
     type: {
       isSelected: false,
@@ -62,64 +79,126 @@ const FilterBar = ({ activeFilters }) => {
     },
   });
 
-  const handleDateChange = (e) => {
-    e.stopPropagation(); // Prevent dropdown from closing or triggering select
-    const newDate = e.target.value;
-    setSelectedDate(newDate);
-    console.log("Selected date: ", newDate);
+  const fetchFilteredFiles = async (currentFilters) => {
+    const queryParams = {
+      mimeType: currentFilters.type,
+      owner: currentFilters.owner,
+      date: currentFilters.date,
+      location: currentFilters.location,
+    };
 
-    // Update dropdown title to show the selected date
-    setDropdownState((prevState) => ({
-      ...prevState,
-      modified: {
-        // Assuming this date picker is under 'modified' key
-        ...prevState.modified,
-        isSelected: true,
-        selectedTitle: newDate, // Update title to show the selected date
-      },
+    try {
+      const response = await axios.get("http://localhost:3001/files/search", {
+        params: queryParams,
+      });
+      console.log("Files fetched:", response.data);
+      setSearchResults(response.data);
+      navigate("/searchResults");
+    } catch (error) {
+      console.error("Error fetching filtered files:", error);
+      setSearchResults([]);
+    }
+  };
+
+  const handleFileTypeChange = (fileType) => {
+    fetchFiles(fileType.mimeType);
+    fetchFilteredFiles(fileType.mimeType);
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      type: fileType.mimeType,
     }));
+
+    setSearchResults([]);
+    fetchFilteredFiles({ ...filters, type: fileType.mimeType });
+  };
+
+  const personChange = (owner) => {
+    fetchFilteredFiles(owner);
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      owner: owner,
+    }));
+    setSearchResults([]);
+    fetchFilteredFiles({ ...filters, owner: owner });
+  };
+  const locationChange = (locationType) => {
+    let locationQuery;
+    switch (locationType) {
+      case "regular":
+        locationQuery = "regular"; // No specific owner, possibly all files accessible by the user
+        break;
+      case "all":
+        locationQuery = "owned"; // Files owned by the user
+        break;
+      case "starred":
+        locationQuery = "starred"; // Files marked as starred by the user
+        break;
+      case "shared":
+        locationQuery = "shared"; // Files that are shared with the user but not owned
+        break;
+      default:
+        locationQuery = ""; // Default might include all files or however you wish to define it
+    }
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      location: locationQuery,
+    }));
+    fetchFilteredFiles({ ...filters, location: locationQuery });
   };
 
   const handleSelect = (key) => (eventKey, event) => {
-    if (event.target.type === "date") {
-      // Directly return if the event comes from date input
-      return;
-    }
-
-    const span = event.currentTarget.querySelector("span");
-    const title = span
-      ? span.textContent.trim()
-      : event.currentTarget.textContent.trim().split("\n")[0];
+    const newValue = event.currentTarget.textContent.trim();
 
     setDropdownState((prevState) => ({
       ...prevState,
       [key]: {
         ...prevState[key],
         isSelected: true,
-        selectedTitle: title || "Default Title",
+        selectedTitle: newValue || prevState[key].selectedTitle,
       },
     }));
   };
+
+  const handleDateChange = (e) => {
+    const newDate = e.target.value;
+    setSelectedDate(newDate);
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      date: newDate,
+    }));
+
+    setDropdownState((prevState) => ({
+      ...prevState,
+      modified: {
+        ...prevState.modified,
+        isSelected: true,
+        selectedTitle: newDate,
+      },
+    }));
+  };
+
   const handleCancel = (key) => () => {
-    setSelectedDate("");
     setDropdownState((prevState) => ({
       ...prevState,
       [key]: {
         ...prevState[key],
         isSelected: false,
-        selectedTitle: activeFilters[key].lastSelectedTitle || key,
+        selectedTitle: key,
       },
     }));
   };
 
   const clearFilters = () => {
-    Object.keys(dropdownState).forEach((key) => {
-      dropdownState[key].isSelected = false;
-      dropdownState[key].selectedTitle =
-        activeFilters[key].lastSelectedTitle || key;
-    });
-    setDropdownState({ ...dropdownState });
+    const resetState = {
+      type: { isSelected: false, selectedTitle: "Type" },
+      people: { isSelected: false, selectedTitle: "People" },
+      modified: { isSelected: false, selectedTitle: "Modified" },
+      location: { isSelected: false, selectedTitle: "Location" },
+    };
+    setDropdownState(resetState);
+    setFilters({ type: "", owner: "", date: "" });
   };
+
   const handleToggle = (value) => {
     filter(value.toLowerCase());
   };
@@ -218,87 +297,87 @@ const FilterBar = ({ activeFilters }) => {
               key={index}
               onClick={() => handleFileTypeChange(type)}
             >
-              {type.toUpperCase()}
+              {type.label}
             </Dropdown.Item>
           ))}
           {/* <Dropdown.Item
-            eventKey="1"
-            className="file-types"
-            style={{ fontWeight: "300" }}
-          >
-            <FileDoc
-              size={25}
-              color="#2a5599"
-              weight="fill"
-              style={{ marginRight: "1rem" }}
-            />
-            <span>Word Document</span>
-          </Dropdown.Item>
-          <Dropdown.Item
-            eventKey="2"
-            className="file-types"
-            style={{ fontWeight: "300" }}
-          >
-            <FileXls
-              size={25}
-              color="#28754c"
-              weight="fill"
-              style={{ marginRight: "1rem" }}
-            />
-            <span>Excel Sheet</span>
-          </Dropdown.Item>
-          <Dropdown.Item
-            eventKey="3"
-            className="file-types"
-            style={{ fontWeight: "300" }}
-          >
-            <FileTxt
-              size={25}
-              color="#828282"
-              weight="fill"
-              style={{ marginRight: "1rem" }}
-            />
-            <span>Text File</span>
-          </Dropdown.Item>
-          <Dropdown.Item
-            eventKey="4"
-            className="file-types"
-            style={{ fontWeight: "300" }}
-          >
-            <FileZip
-              size={25}
-              color="#050505"
-              weight="fill"
-              style={{ marginRight: "1rem" }}
-            />
-            <span>Zip and Rar Files</span>
-          </Dropdown.Item>
-          <Dropdown.Item
-            eventKey="5"
-            className="file-types"
-            style={{ fontWeight: "300" }}
-          >
-            <FilePdf
-              size={25}
-              color="#ea4335"
-              weight="fill"
-              style={{ marginRight: "1rem" }}
-            />
-            <span>PDF</span>
-          </Dropdown.Item>
-          <Dropdown.Item
-            eventKey="6"
-            className="file-types"
-            style={{ fontWeight: "300" }}
-          >
-            <FilePdf
-              size={25}
-              color="#ea4335"
-              weight="fill"
-              style={{ marginRight: "1rem" }}
-            />
-            <span>Video</span>
-          </Dropdown.Item> */}
+              eventKey="1"
+              className="file-types"
+              style={{ fontWeight: "300" }}
+            >
+              <FileDoc
+                size={25}
+                color="#2a5599"
+                weight="fill"
+                style={{ marginRight: "1rem" }}
+              />
+              <span>Word Document</span>
+            </Dropdown.Item>
+            <Dropdown.Item
+              eventKey="2"
+              className="file-types"
+              style={{ fontWeight: "300" }}
+            >
+              <FileXls
+                size={25}
+                color="#28754c"
+                weight="fill"
+                style={{ marginRight: "1rem" }}
+              />
+              <span>Excel Sheet</span>
+            </Dropdown.Item>
+            <Dropdown.Item
+              eventKey="3"
+              className="file-types"
+              style={{ fontWeight: "300" }}
+            >
+              <FileTxt
+                size={25}
+                color="#828282"
+                weight="fill"
+                style={{ marginRight: "1rem" }}
+              />
+              <span>Text File</span>
+            </Dropdown.Item>
+            <Dropdown.Item
+              eventKey="4"
+              className="file-types"
+              style={{ fontWeight: "300" }}
+            >
+              <FileZip
+                size={25}
+                color="#050505"
+                weight="fill"
+                style={{ marginRight: "1rem" }}
+              />
+              <span>Zip and Rar Files</span>
+            </Dropdown.Item>
+            <Dropdown.Item
+              eventKey="5"
+              className="file-types"
+              style={{ fontWeight: "300" }}
+            >
+              <FilePdf
+                size={25}
+                color="#ea4335"
+                weight="fill"
+                style={{ marginRight: "1rem" }}
+              />
+              <span>PDF</span>
+            </Dropdown.Item>
+            <Dropdown.Item
+              eventKey="6"
+              className="file-types"
+              style={{ fontWeight: "300" }}
+            >
+              <FilePdf
+                size={25}
+                color="#ea4335"
+                weight="fill"
+                style={{ marginRight: "1rem" }}
+              />
+              <span>Video</span>
+            </Dropdown.Item> */}
         </Dropdown.Menu>
       </Dropdown>
       <Dropdown as={ButtonGroup} onSelect={handleSelect("people")}>
@@ -327,9 +406,13 @@ const FilterBar = ({ activeFilters }) => {
             {dropdownState.people.selectedTitle}
           </Dropdown.Toggle>
         )}
-        <Dropdown.Menu as={CustomMenu}>
+        <Dropdown.Menu>
           {users.map((user, index) => (
-            <Dropdown.Item eventKey={index} value={user.username}>
+            <Dropdown.Item
+              eventKey={index}
+              value={user.username}
+              onClick={() => personChange(user.username)}
+            >
               <span>{user.username}</span>
             </Dropdown.Item>
           ))}
@@ -365,19 +448,19 @@ const FilterBar = ({ activeFilters }) => {
           <Dropdown.Item className="date-types" eventKey="1">
             Today
           </Dropdown.Item>
-          <Dropdown.Item className="date-types" eventKey="1">
+          <Dropdown.Item className="date-types" eventKey="2">
             Last 7 Days
           </Dropdown.Item>
-          <Dropdown.Item className="date-types" eventKey="1">
+          <Dropdown.Item className="date-types" eventKey="3">
             Last 30 Days
           </Dropdown.Item>
-          <Dropdown.Item className="date-types" eventKey="1">
+          <Dropdown.Item className="date-types" eventKey="4">
             This Year (2024)
           </Dropdown.Item>
-          <Dropdown.Item className="date-types" eventKey="1">
+          <Dropdown.Item className="date-types" eventKey="5">
             Last Year (2023)
           </Dropdown.Item>
-          <Dropdown.Item className="date-types" eventKey="1">
+          <Dropdown.Item className="date-types" eventKey="6">
             <Form.Group>
               <Form.Control
                 type="date"
@@ -417,15 +500,27 @@ const FilterBar = ({ activeFilters }) => {
           </Dropdown.Toggle>
         )}
         <Dropdown.Menu className="drop-location">
-          <Dropdown.Item eventKey="1" className="location-item">
+          <Dropdown.Item
+            eventKey="1"
+            className="location-item"
+            onClick={() => locationChange("regular")}
+          >
             <Check size={22} weight="bold" className="drop-icon" />
             <span> Anywhere in Drive</span>
           </Dropdown.Item>
-          <Dropdown.Item eventKey="2" className="location-item">
+          <Dropdown.Item
+            eventKey="2"
+            className="location-item"
+            onClick={() => locationChange("all")}
+          >
             <HardDrives size={22} weight="bold" className="drop-icon" />
             <span>My Drive</span>
           </Dropdown.Item>
-          <Dropdown.Item eventKey="2" className="location-item">
+          <Dropdown.Item
+            eventKey="3"
+            className="location-item"
+            onClick={() => locationChange("starred")}
+          >
             <CirclesThree size={22} weight="bold" className="drop-icon" />
             <span>Shared With Me</span>
           </Dropdown.Item>
@@ -449,31 +544,3 @@ const FilterBar = ({ activeFilters }) => {
 };
 
 export default FilterBar;
-const CustomMenu = React.forwardRef(
-  ({ children, style, className, "aria-labelledby": labeledBy }, ref) => {
-    const [value, setValue] = useState("");
-
-    return (
-      <div
-        ref={ref}
-        style={style}
-        className={className}
-        aria-labelledby={labeledBy}
-      >
-        <Form.Control
-          autoFocus
-          className="mx-3 my-2 w-auto"
-          placeholder="Type to filter..."
-          onChange={(e) => setValue(e.target.value)}
-          value={value}
-        />
-        <ul className="list-unstyled">
-          {React.Children.toArray(children).filter(
-            (child) =>
-              !value || child.props.children.toLowerCase().startsWith(value)
-          )}
-        </ul>
-      </div>
-    );
-  }
-);

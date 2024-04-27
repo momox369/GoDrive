@@ -60,7 +60,7 @@ function FolderContents() {
         {selectedFiles.length > 0 || selectedFolders.length > 0 ? (
           <FileMenu selectedFileIds={fileIds} selectedFolderIds={folderIds} />
         ) : (
-          <FilterBar activeFilters={activeFilters} />
+          ""
         )}
 
         {viewMode === "list" ? (
