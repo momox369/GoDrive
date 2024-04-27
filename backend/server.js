@@ -114,56 +114,37 @@ const File = mongoose.model("File", fileSchema);
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadPath = path.join(__dirname, "uploads");
-    fs.mkdirSync(uploadPath, { recursive: true }); // Ensure the directory exists
-    cb(null, uploadPath);
+    if (req.body.parentId) {
+      File.findById(req.body.parentId, (err, parentFolder) => {
+        if (err || !parentFolder) {
+          cb(new Error("Parent folder not found"));
+        } else {
+          const uploadPath = path.join(
+            __dirname,
+            "uploads",
+            parentFolder.location
+          );
+          fs.mkdirSync(uploadPath, { recursive: true }); // Ensure the directory exists
+          cb(null, uploadPath);
+        }
+      });
+    } else {
+      const uploadPath = path.join(__dirname, "uploads");
+      fs.mkdirSync(uploadPath, { recursive: true });
+      cb(null, uploadPath);
+    }
   },
   filename: function (req, file, cb) {
-    // Use originalname to ensure the name is defined
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.originalname.replace(/\s/g, "_") +
-        "-" +
-        uniqueSuffix +
-        path.extname(file.originalname)
-    );
+    const extension = path.extname(file.originalname).toLowerCase();
+    cb(null, file.fieldname + "-" + uniqueSuffix + extension);
+  },
+  onFileUploadStart: function (file) {
+    file.extension = path.extname(file.originalname).toLowerCase();
   },
 });
 
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: function (req, file, cb) {
-      if (req.body.parentId) {
-        File.findById(req.body.parentId, (err, parentFolder) => {
-          if (err || !parentFolder) {
-            cb(new Error("Parent folder not found"));
-          } else {
-            const uploadPath = path.join(
-              __dirname,
-              "uploads",
-              parentFolder.location
-            );
-            fs.mkdirSync(uploadPath, { recursive: true }); // Ensure the directory exists
-            cb(null, uploadPath);
-          }
-        });
-      } else {
-        const uploadPath = path.join(__dirname, "uploads");
-        fs.mkdirSync(uploadPath, { recursive: true });
-        cb(null, uploadPath);
-      }
-    },
-    filename: function (req, file, cb) {
-      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-      const extension = path.extname(file.originalname).toLowerCase();
-      cb(null, cb(null, file.fieldname + "-" + uniqueSuffix + extension));
-    },
-    onFileUploadStart: function (file) {
-      file.extension = path.extname(file.originalname).toLowerCase();
-    },
-  }),
-});
+const upload = multer({ storage: storage });
 
 app.post("/register", async (req, res) => {
   const { email, username, password } = req.body;

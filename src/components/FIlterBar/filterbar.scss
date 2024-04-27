@@ -121,8 +121,24 @@
     border-radius: 20px;
   }
 }
-.date-types {
-  padding: 0.5rem 1rem !important;
-  padding-left: 2rem !important;
-  margin-bottom: 0.5rem !important;
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  margin-top: 1em;
+}
+
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filter-bar > * {
+    margin-bottom: 0.5rem;
+  }
+
+  .filter-bar .dropdown-btn {
+    width: 100%;
+  }
 }
