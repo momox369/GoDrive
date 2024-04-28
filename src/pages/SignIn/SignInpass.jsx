@@ -20,59 +20,64 @@ const SignInPass = () => {
     console.log("Redirect to Sign Up");
   };
 
+  const handleForgotPassword = () => {
+    // Redirect to the Forgot Password page or component
+    navigate("/forgotpasswordpage");
+  };
+
   return (
-    <div className="sign-in-container">
-      <form className="sign-in-form" onSubmit={handleSubmit}>
-        <div className="right-panel">
-          <div className="logo-signin">
-            <img
-              src={logo}
-              alt="GoDrive logo"
-              className="logo"
-              id="signinlogo"
-            />
-          </div>
-          <div className="title-signin">
-            <h3>Sign in</h3>
-            <h4>Use your Google Account</h4>
-          </div>
-          <div className="input-group email">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              className="signin-boxes"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-          <div className="input-group">
-            <label>
+      <div className="sign-in-container">
+        <form className="sign-in-form" onSubmit={handleSubmit}>
+          <div className="right-panel">
+            <div className="logo-signin">
+              <img
+                  src={logo}
+                  alt="GoDrive logo"
+                  className="logo"
+                  id="signinlogo"
+              />
+            </div>
+            <div className="title-signin">
+              <h3>Sign in</h3>
+              <h4>Use your Google Account</h4>
+            </div>
+            <div className="input-group email">
+              <label htmlFor="password">Password</label>
               <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />{" "}
-              Remember Me
-            </label>
+                  id="password"
+                  type="password"
+                  className="signin-boxes"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+              />
+            </div>
+            <div className="input-group">
+              <label>
+                <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                />{" "}
+                Remember Me
+              </label>
+            </div>
+            <div className="signin-btns">
+              <Button className="signin-buttons" variant="secondary" onClick={handleForgotPassword}>
+                Forgot Password?
+              </Button>
+              <Button
+                  type="submit"
+                  className="signin-buttons next"
+                  variant="primary"
+              >
+                Sign In
+              </Button>
+            </div>
           </div>
-          <div className="signin-btns">
-            <Button className="signin-buttons" variant="secondary">
-              Back
-            </Button>
-            <Button
-              type="submit"
-              className="signin-buttons next"
-              variant="primary"
-            >
-              Sign In
-            </Button>
-          </div>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
   );
 };
 

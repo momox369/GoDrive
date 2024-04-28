@@ -17,6 +17,8 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
+const bcrypt = require("bcryptjs");
+require("dotenv").config();
 
 const uri = process.env.MONGODB_URI;
 mongoose
@@ -37,6 +39,18 @@ const fileSchema = new mongoose.Schema({
   owner: [String],
   type: { type: String, default: "file" },
 });
+
+const UserSchema = new mongoose.Schema({
+    email: {
+        type: String,
+        unique: true
+    },
+    password: {
+        type: String,
+    }
+});
+
+const User = mongoose.model('User', UserSchema);
 
 const File = mongoose.model("File", fileSchema);
 
@@ -244,6 +258,31 @@ app.post("/share", async (req, res) => {
     } catch (error) {
         console.error("Error sharing file:", error);
         res.status(500).send("Error sharing file");
+    }
+});
+
+app.post("/forgotpassword", async (req, res) => {
+    const { email, newPassword } = req.body;
+
+    try {
+        // Check if the user exists with the provided email
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the user's password with the new hashed password
+        user.password = hashedPassword;
+        await user.save();
+
+        // Respond with success message
+        res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+        console.error("Error updating password:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
 });
 
