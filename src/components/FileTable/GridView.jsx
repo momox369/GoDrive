@@ -1,19 +1,26 @@
 import React from "react";
-import { FileDoc, FileXls, Folder } from "@phosphor-icons/react";
+import {
+  DotsThreeVertical,
+  File,
+  FileDoc,
+  FileXls,
+  Folder,
+} from "@phosphor-icons/react";
 import "./filetable.scss";
 
 const GridView = ({ items, isSelected, handleItemClick }) => (
   <div className="grid-container">
     {items.map((item) => (
       <div
-        key={item.id}
+        key={item._id}
         className={`grid-item ${
-          isSelected.some((f) => f.id === item.id) ? "selected-file" : ""
+          isSelected.some((f) => f._id === item._id) ? "selected-file" : ""
         }`}
         onClick={() => handleItemClick(item)}
       >
         <div className="file-name">
           <p>{item.name}</p>
+          <DotsThreeVertical size={20} />
         </div>
         {item.type === "folders" ? (
           <div className="file-name">
@@ -35,8 +42,14 @@ const GridView = ({ items, isSelected, handleItemClick }) => (
           <div className="file-preview">
             <FileXls className="file-preview-icon" />
           </div>
+        ) : item.name.endsWith(".png") ||
+          item.name.endsWith(".jpg") ||
+          item.name.endsWith(".jpeg") ? (
+          <div className="file-preview">
+            <img src={item.url} alt="File preview" />
+          </div>
         ) : (
-          <img src={item.url} alt="File preview" />
+          <File size={150} weight="fill" />
         )}
         <div className="file-details">
           <p>{item.reason}</p>

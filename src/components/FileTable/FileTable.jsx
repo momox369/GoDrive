@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom"; // Import if using React Router
 import GridView from "./GridView";
 import GridFolderView from "./GridFolderView";
 import ListView from "./ListView";
@@ -6,13 +7,20 @@ import { useViewMode } from "../ViewModeController";
 import { useFiles } from "../FileController";
 
 const FileTable = () => {
+  const { pathname } = useLocation(); // Get current path using React Router
   const { viewMode } = useViewMode();
-  const { filterType, itemsToDisplay, isSelected, handleItemClick } =
-    useFiles();
+  const {
+    filterType,
+    itemsToDisplay,
+    isSelected,
+    handleItemClick,
+    trashedItems,
+  } = useFiles();
+  const isTrash = pathname === "/trash";
 
   return (
     <div style={{ maxHeight: "70vh", overflowY: "auto", marginTop: "1rem" }}>
-      {viewMode === "grid" ? (
+      {!isTrash && viewMode === "grid" ? (
         filterType === "files" ? (
           <GridView
             items={itemsToDisplay}
@@ -28,7 +36,7 @@ const FileTable = () => {
         )
       ) : (
         <ListView
-          items={itemsToDisplay}
+          items={isTrash ? trashedItems : itemsToDisplay}
           isSelected={isSelected}
           handleItemClick={handleItemClick}
         />

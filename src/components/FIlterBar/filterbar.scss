@@ -121,3 +121,24 @@
     border-radius: 20px;
   }
 }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  margin-top: 1em;
+}
+
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filter-bar > * {
+    margin-bottom: 0.5rem;
+  }
+
+  .filter-bar .dropdown-btn {
+    width: 100%;
+  }
+}

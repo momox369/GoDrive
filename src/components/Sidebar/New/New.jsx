@@ -10,7 +10,7 @@ import axios from "axios";
 
 const New = () => {
   const [showModal, setShowModal] = useState(false);
-  const { uploadFile, fetchFilesAndFolders } = useFiles();
+  const { uploadFile, fetchFilesAndFolders, folderId } = useFiles(); // Assume currentFolderId is managed at a higher level
   const fileInputRef = useRef(null);
   const folderInputRef = useRef(null);
   const [folderName, setFolderName] = useState("");
@@ -18,13 +18,39 @@ const New = () => {
   const createFolder = async () => {
     try {
       const response = await axios.post("http://localhost:3001/create-folder", {
-        folderName: folderName,
+        folderName,
+        parentId: folderId,
       });
-      console.log(response.data);
       fetchFilesAndFolders();
       handleCloseModal();
     } catch (error) {
       console.error("Error creating folder:", error);
+    }
+  };
+
+  const handleFileChange = async (event) => {
+    const files = event.target.files;
+    if (files.length) {
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append("files", file);
+      });
+      formData.append("parentId", folderId);
+
+      try {
+        const response = await axios.post(
+          "http://localhost:3001/upload",
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+        if (response.data.files.length > 0) {
+          uploadFile(response.data.files);
+        } else {
+          console.error("No files data returned from server");
+        }
+      } catch (error) {
+        console.error("Error uploading files:", error);
+      }
     }
   };
 
@@ -38,24 +64,6 @@ const New = () => {
     folderInputRef.current.click();
   };
 
-  const handleFileChange = async (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const response = await axios.post(
-          "http://localhost:3001/upload",
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
-        uploadFile(response.data);
-      } catch (error) {
-        console.error("Error uploading file:", error);
-      }
-    }
-  };
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
@@ -118,6 +126,7 @@ const New = () => {
         ref={fileInputRef}
         onChange={handleFileChange}
         style={{ display: "none" }}
+        multiple
       />
       <input
         type="file"

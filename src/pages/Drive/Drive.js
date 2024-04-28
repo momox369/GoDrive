@@ -11,58 +11,75 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { useViewMode } from "../../components/ViewModeController";
 import { useState } from "react";
+import ListView from "../../components/FileTable/ListView";
 
 function Drive() {
   const {
     filterType,
     itemsToDisplay,
     isSelected,
+    activeFilters,
     handleItemClick,
     folders,
     files,
     selectedFiles,
     selectedFolders,
+    fileIds,
+    folderIds,
     setSelectedFiles,
     setSelectedFolders,
     resetCounter,
   } = useFiles();
   const location = useLocation();
   const { viewMode, setViewMode } = useViewMode();
-  
+
   useEffect(() => {
     resetCounter();
     setViewMode("grid");
     setSelectedFiles([]);
     setSelectedFolders([]);
   }, [location.pathname]);
+  const allItems = files.concat(folders);
   return (
     <DisplayPages>
       <div className="content drive">
         <StaticHeader title={"Drive"} />
         {selectedFiles.length > 0 || selectedFolders.length > 0 ? (
-          <FileMenu />
+          <FileMenu selectedFileIds={fileIds} selectedFolderIds={folderIds} />
         ) : (
-          <FilterBar />
+          <FilterBar activeFilters={activeFilters} />
         )}
-        <div className="all-items">
-          <div className="all-items-folders">
-            {" "}
-            <p>Folders</p>
-            <GridFolderView
-              items={folders}
-              isSelected={isSelected}
-              handleItemClick={handleItemClick}
-            />
+        {viewMode === "grid" ? (
+          <div className="all-items">
+            <div className="all-items-folders">
+              {" "}
+              <p>Folders</p>
+              <GridFolderView
+                items={folders}
+                isSelected={isSelected}
+                handleItemClick={handleItemClick}
+              />
+            </div>
+            <div className="all-items-files">
+              <p>Files</p>
+              <GridView
+                items={files}
+                isSelected={isSelected}
+                handleItemClick={handleItemClick}
+              />
+            </div>
           </div>
-          <div className="all-items-files">
-            <p>Files</p>
-            <GridView
-              items={files}
-              isSelected={isSelected}
-              handleItemClick={handleItemClick}
-            />
+        ) : (
+          <div className="all-items">
+            <div className="all-items-files">
+              <ListView
+                items={allItems}
+                isSelected={isSelected}
+                handleItemClick={handleItemClick}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </DisplayPages>
   );

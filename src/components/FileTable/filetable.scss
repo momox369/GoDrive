@@ -3,7 +3,13 @@
     padding: 0.8rem 0rem;
     color: rgb(85, 85, 85);
     font-weight: 200;
-   
+    overflow: hidden; // Ensure the overflow content is not displayed
+    white-space: nowrap; // Keep the text on a single line
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    span {
+      margin-right: 0.5rem;
+    }
   }
   .selected-file {
     background-color: #c1e7fe;
@@ -13,6 +19,7 @@
   th {
     font-weight: normal;
     font-size: 0.87rem;
+    cursor: pointer;
   }
   tbody {
     font-size: 0.85rem;
@@ -20,10 +27,18 @@
     #name {
       color: black;
       font-weight: 400;
-      min-width: 40%;
+      width: 40%;
       padding-left: 1.5rem;
+    }
+    #reason {
+      width: 20%;
       display: flex;
       align-items: center;
+      display: table-cell;
+    }
+    #owner {
+      width: 10%;
+      display: table-cell;
     }
   }
 }
@@ -36,6 +51,34 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(20%, 1fr));
   gap: 16px;
+}
+@media (max-width: 768px) {
+  .grid-container {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(150px, 1fr)
+    ); /* Smaller grid items */
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+  .grid-container {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(200px, 1fr)
+    ); /* Medium grid items */
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  .grid-container {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(250px, 1fr)
+    ); /* Larger grid items */
+  }
 }
 
 .grid-item {
@@ -53,13 +96,16 @@
   height: 150px;
   object-fit: cover;
   border-radius: 3px;
-}
-.file-name {
-  padding: 8px;
-  text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.file-name {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-size: 0.9rem;
 }
 .file-details {
@@ -103,3 +149,24 @@ p {
   }
 }
 // filetable.scss
+/* filetable.scss */
+
+tr:hover .action-icons {
+  opacity: 1;
+  background-color: inset 0 0 0 9999px
+    var(--bs-table-bg-state, var(--bs-table-bg-type, var(--bs-table-accent-bg))); /* icons become fully opaque on hover */
+}
+
+.action-icons {
+  display: flex !important;
+  justify-content: end !important;
+}
+
+.action-icon {
+  cursor: pointer;
+  margin-right: 1rem; /* space between icons */
+}
+#buttons-list {
+  display: flex;
+  justify-content: end;
+}

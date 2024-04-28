@@ -7,24 +7,51 @@ import {
   UserPlus,
   X,
 } from "@phosphor-icons/react";
+<<<<<<< HEAD
 import React, {useState} from "react";
 import "./filemenu.scss";
 import {Button, Dropdown, Form} from "react-bootstrap";
 import { useFiles } from "../FileController";
 import Modal from "react-bootstrap/Modal";
+=======
+import React, { useState } from "react";
+import "./filemenu.scss";
+import { Button, Dropdown, Modal, Tab, Tabs } from "react-bootstrap";
+import { useFiles } from "../FileController";
+import ShareModal from "../ShareModal";
+import Directory from "../Directory";
+>>>>>>> main
 
-const FileMenu = () => {
+const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
+  const [showModal, setShowModal] = useState(false);
+  const [showNested, setShowNested] = useState(false);
+  const handleOpenModal = () => setShowModal(true);
+  const handleToggleNested = () => setShowNested(!showNested);
+  const handleCloseModal = () => setShowModal(false);
+
+  const [key, setKey] = useState("starred");
+  const [showShareModal, setShareShowModal] = useState(false);
   const {
-    deleteFiles,
     fileType,
     selectedFiles,
     fileCounter,
     folderCounter,
     resetCounter,
     selectedFolders,
+<<<<<<< HEAD
       shareFile
+=======
+    trashedItems,
+    toggleTrash,
+    shareItemWithUser,
+    files,
+    folders,
+>>>>>>> main
   } = useFiles();
+  const selectedItem =
+    (fileType === "files" ? selectedFiles : selectedFolders)[0] || null;
 
+<<<<<<< HEAD
   const selectedFileIds = selectedFiles.map(file => file.id);
   const selectedFolderIds = selectedFolders.map(folder => folder.id);
   const [showModal, setShowModal] = useState(false);
@@ -42,11 +69,18 @@ const FileMenu = () => {
     setEmail("");
   };
 
+=======
+  const handleOpenShareModal = () => {
+    setShareShowModal(true);
+  };
+  const handleCloseShareModal = () => setShareShowModal(false);
+>>>>>>> main
   const handleDelete = async () => {
     if (fileType === "files") {
-      await deleteFiles(selectedFileIds);
+      await toggleTrash(selectedFileIds);
+      console.log(selectedFileIds);
     } else {
-      await deleteFiles(selectedFolderIds);
+      await toggleTrash(selectedFolderIds);
     }
     resetCounter();
   };
@@ -119,12 +153,27 @@ const FileMenu = () => {
             {folderCounter} selected
           </span>
         )}
+<<<<<<< HEAD
         <Button className="menu-icons" onClick={handleShare}>
+=======
+        <Button
+          className="menu-icons"
+          disabled={selectedFiles.length > 1 ? true : false}
+        >
+>>>>>>> main
           <UserPlus
             className="file-menu-icon"
             weight="bold"
             size={18}
+            onClick={() => handleOpenShareModal()}
             style={{ margin: "0 5px", color: "#444746", cursor: "pointer" }}
+          />
+          <ShareModal
+            show={showShareModal}
+            onHide={handleCloseShareModal}
+            onShare={shareItemWithUser}
+            fileId={selectedFiles}
+            name={selectedFiles.map((file) => file.name)}
           />
         </Button>
         <Button className="menu-icons" onClick={handleDownload}>
@@ -139,10 +188,39 @@ const FileMenu = () => {
           {" "}
           <FolderSimple
             className="file-menu-icon"
+            onClick={handleOpenModal}
             weight="bold"
             size={18}
             style={{ margin: "0 5px", color: "#444746", cursor: "pointer" }}
           />
+          <Modal size="lg" show={showModal} onHide={handleCloseModal} centered>
+            <Modal.Header closeButton>
+              <Modal.Title>Move Item</Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{ height: "50vh" }}>
+              <Tabs
+                id="controlled-tab-example"
+                activeKey={key}
+                onSelect={(k) => setKey(k)}
+                className="mb-3"
+              >
+                <Tab eventKey="starred" title="Starred">
+                  <Directory filter="starred" />
+                </Tab>
+                <Tab eventKey="allLocations" title="All Locations">
+                  <Directory filter="all" />
+                </Tab>
+              </Tabs>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseModal}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={handleCloseModal}>
+                Move
+              </Button>
+            </Modal.Footer>
+          </Modal>
         </Button>
         <Button className="menu-icons">
           <Trash
@@ -173,10 +251,84 @@ const FileMenu = () => {
               />
             </Dropdown.Toggle>
 
-            <Dropdown.Menu>
-              <Dropdown.Item href="#">Menu Item</Dropdown.Item>
-              <Dropdown.Item href="#">Menu Item</Dropdown.Item>
-              <Dropdown.Item href="#">Menu Item</Dropdown.Item>
+            <Dropdown.Menu className="file-menu-dropdown">
+              <Dropdown.Item
+                href="#/action-1"
+                className="kebab-items"
+                disabled
+                style={{ color: "black" }}
+              >
+                Name: <span>{selectedItem ? selectedItem.name : "N/A"}</span>
+              </Dropdown.Item>{" "}
+              <Dropdown.Item
+                href="#/action-1"
+                className="kebab-items"
+                disabled
+                style={{ color: "black" }}
+              >
+                Owner: <span> {selectedItem ? selectedItem.owner : "N/A"}</span>
+              </Dropdown.Item>{" "}
+              <Dropdown.Item
+                href="#/action-1"
+                className="kebab-items"
+                disabled
+                style={{ color: "black" }}
+              >
+                Uploaded Date:
+                <span>
+                  {" "}
+                  {selectedItem
+                    ? selectedItem.reason.substring(
+                        11,
+                        selectedItem.reason.length
+                      )
+                    : "N/A"}
+                </span>
+              </Dropdown.Item>{" "}
+              <Dropdown.Item
+                href="#/action-1"
+                className="kebab-items"
+                disabled
+                style={{ color: "black" }}
+              >
+                Location:{" "}
+                <span>{selectedItem ? selectedItem.location : "N/A"}</span>
+              </Dropdown.Item>
+              <Dropdown
+                as="span"
+                className="nested-dropdown"
+                onMouseOver={(e) => e.currentTarget.classList.add("show")}
+                onMouseOut={(e) => e.currentTarget.classList.remove("show")}
+              >
+                <Dropdown.Toggle as="span" className="nested-dropdown-toggle">
+                  View Details
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu align="end" className="nested-dropdown-menu">
+                  <Dropdown.Item className="kebab-items" href="#/action-2">
+                    Type:
+                    <span>
+                      {" "}
+                      {selectedItem
+                        ? fileType === "files"
+                          ? selectedItem.mimeType
+                          : "Folder"
+                        : "N/A"}
+                    </span>
+                  </Dropdown.Item>
+                  <Dropdown.Item className="kebab-items" href="#/action-3">
+                    Size:{" "}
+                    <span>
+                      {" "}
+                      {selectedItem
+                        ? fileType === "files"
+                          ? selectedItem.size
+                          : ""
+                        : "N/A"}
+                    </span>
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
             </Dropdown.Menu>
           </Dropdown>
         </Button>
