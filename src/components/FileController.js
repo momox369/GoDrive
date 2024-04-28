@@ -252,7 +252,7 @@ export const FileProvider = ({ children }) => {
       console.error("Error fetching shared files and folders:", error);
       setSharedFiles({ files: [], folders: [] }); // Reset on error
     }
-  }, []);
+  }, [files, folders]);
   const shareItemWithUser = useCallback(
     async (fileId, userId) => {
       try {
@@ -451,6 +451,9 @@ export const FileProvider = ({ children }) => {
   };
   const FileIcon = ({ mimeType }) => {
     const defaultIcon = <Folder size={20} weight="fill" />;
+    if (!mimeType) {
+      return defaultIcon; // Return default icon if mimeType is undefined or null
+    }
     const mimeGroup = mimeType.split("/")[0];
     return (
       fileIconMapping[mimeType] ||

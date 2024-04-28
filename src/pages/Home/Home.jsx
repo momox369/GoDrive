@@ -9,6 +9,9 @@ import { useFiles } from "../../components/FileController";
 import DisplayPages from "../../DisplayPages";
 import { useLocation } from "react-router-dom";
 import { useViewMode } from "../../components/ViewModeController";
+import GridFolderView from "../../components/FileTable/GridFolderView";
+import ListView from "../../components/FileTable/ListView";
+import GridView from "../../components/FileTable/GridView";
 
 function Home() {
   const {
@@ -17,12 +20,18 @@ function Home() {
     fileIds,
     folderIds,
     resetCounter,
+    isSelected,
+    handleItemClick,
     activeFilters,
     filterType,
     fileCounter,
     folderCounter,
     setSelectedFiles,
+    fetchFilesAndFolders,
     setSelectedFolders,
+    folders,
+    files,
+    fileType,
   } = useFiles();
 
   const location = useLocation();
@@ -33,28 +42,53 @@ function Home() {
     resetCounter();
     setSelectedFiles([]);
     setSelectedFolders([]);
-  }, [location.pathname]);
-  
+    fetchFilesAndFolders();
+  }, [location.pathname, fetchFilesAndFolders]);
+
   return (
     <DisplayPages>
       <div className="content">
         <StaticHeader title={"Welcome to GoDrive"} />
         {(selectedFiles.length > 0 && filterType === "files") ||
         (selectedFolders.length > 0 && filterType === "folders") ? (
-          <FileMenu
-            selectedFileIds={fileIds}
-            selectedFolderIds={folderIds}
-            fileCounter={fileCounter}
-            folderCounter={folderCounter}
-            resetCounter={resetCounter}
-            selectedFolders={selectedFolders}
-            selectedFiles={selectedFiles}
-          />
+          <FileMenu selectedFileIds={fileIds} selectedFolderIds={folderIds} />
         ) : (
           <FilterBar activeFilters={activeFilters} />
         )}
 
-        <FileList />
+        {viewMode === "grid" ? (
+          <div className="all-items">
+            {fileType === "folders" ? (
+              <GridFolderView
+                items={folders}
+                isSelected={isSelected}
+                handleItemClick={handleItemClick}
+              />
+            ) : (
+              <GridView
+                items={files}
+                isSelected={isSelected}
+                handleItemClick={handleItemClick}
+              />
+            )}
+          </div>
+        ) : (
+          <div className="all-items">
+            {fileType === "folders" ? (
+              <ListView
+                items={folders}
+                isSelected={isSelected}
+                handleItemClick={handleItemClick}
+              />
+            ) : (
+              <ListView
+                items={files}
+                isSelected={isSelected}
+                handleItemClick={handleItemClick}
+              />
+            )}
+          </div>
+        )}
       </div>
     </DisplayPages>
   );
