@@ -149,7 +149,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
     });
     return sortableItems;
   }, [items, sortConfig]);
-
+  const recentItems = sortedItems().slice(0, 20);
   const handleSort = (key) => {
     let direction = "ascending";
     if (sortConfig.key === key && sortConfig.direction === "ascending") {
@@ -213,7 +213,7 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
         </tr>
       </thead>
       <tbody>
-        {sortedItems().map((item) => (
+        {recentItems.map((item) => (
           <tr
             key={item._id}
             onMouseEnter={() => setHoveredId(item._id)}
@@ -326,12 +326,6 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
                   onClick={(e) => handlePenClick(e, item)}
                 />
                 <Star
-                  size={20}
-                  className="action-icon"
-                  weight={isItemStarred(item) ? "fill" : "regular"}
-                  onClick={(event) => handleStarClick(event, item)}
-                />
-                <ThreeDotsVertical
                   size={20}
                   className="action-icon"
                   weight={isItemStarred(item) ? "fill" : "regular"}

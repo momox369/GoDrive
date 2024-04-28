@@ -57,7 +57,7 @@ function Home() {
         )}
 
         {viewMode === "grid" ? (
-          <div className="all-items">
+          <div className="all-items" style={{ marginTop: "2rem" }}>
             {fileType === "folders" ? (
               <GridFolderView
                 items={folders}
@@ -73,7 +73,7 @@ function Home() {
             )}
           </div>
         ) : (
-          <div className="all-items">
+          <div className="all-items" style={{ marginTop: "2rem" }}>
             {fileType === "folders" ? (
               <ListView
                 items={folders}

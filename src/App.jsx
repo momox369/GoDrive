@@ -19,6 +19,7 @@ import { AuthProvider } from "./components/AuthProvider";
 import SearchResult from "./pages/SearchResult/SearchResult";
 import AdvancedSearch from "./components/TopBar/AdvancedFilter";
 import FolderContent from "./pages/FolderView/FolderView";
+import ForgotPassword from "./pages/ForgetPassword/ForgotPassword";
 
 const App = () => (
   <BrowserRouter>
@@ -36,7 +37,9 @@ const App = () => (
             <Route path="/trash" element={<Trash />} />
             <Route path="/display" element={<DisplayPages />} />
             <Route path="/searchResults" element={<SearchResult />} />{" "}
+            <Route path="/forgotpasswordpage" element={<ForgotPasswordPage/>} />
             <Route path="/folders/:folderName" element={<FolderContent />} />
+            
           </Routes>
         </AuthProvider>
       </ViewModeProvider>
