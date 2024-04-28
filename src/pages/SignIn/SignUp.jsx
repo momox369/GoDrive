@@ -54,7 +54,7 @@ const SignUp = () => {
               required
             />
           </div>
-          <div className="input-group">
+          <div className="input-group" style={{ marginTop: "1rem" }}>
             <label htmlFor="email">Username</label>
             <input
               id="username-input"
@@ -66,7 +66,7 @@ const SignUp = () => {
               required
             />
           </div>
-          <div className="input-group">
+          <div className="input-group" style={{ marginTop: "1rem" }}>
             <label htmlFor="password">Password</label>
             <input
               id="password"
@@ -78,7 +78,7 @@ const SignUp = () => {
               required
             />
           </div>
-          <div className="input-group">
+          <div className="input-group" style={{ marginTop: "1rem" }}>
             <label htmlFor="confirm-password">Confirm Password</label>
             <input
               id="confirm-password"

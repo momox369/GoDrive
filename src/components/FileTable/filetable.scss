@@ -6,6 +6,10 @@
     overflow: hidden; // Ensure the overflow content is not displayed
     white-space: nowrap; // Keep the text on a single line
     text-overflow: ellipsis;
+    vertical-align: middle;
+    span {
+      margin-right: 0.5rem;
+    }
   }
   .selected-file {
     background-color: #c1e7fe;

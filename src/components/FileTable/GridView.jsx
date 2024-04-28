@@ -1,6 +1,7 @@
 import React from "react";
 import {
   DotsThreeVertical,
+  File,
   FileDoc,
   FileXls,
   Folder,
@@ -8,7 +9,6 @@ import {
 import "./filetable.scss";
 
 const GridView = ({ items, isSelected, handleItemClick }) => (
-  
   <div className="grid-container">
     {items.map((item) => (
       <div
@@ -42,8 +42,14 @@ const GridView = ({ items, isSelected, handleItemClick }) => (
           <div className="file-preview">
             <FileXls className="file-preview-icon" />
           </div>
+        ) : item.name.endsWith(".png") ||
+          item.name.endsWith(".jpg") ||
+          item.name.endsWith(".jpeg") ? (
+          <div className="file-preview">
+            <img src={item.url} alt="File preview" />
+          </div>
         ) : (
-          <img src={item.url} alt="File preview" />
+          <File size={150} weight="fill" />
         )}
         <div className="file-details">
           <p>{item.reason}</p>

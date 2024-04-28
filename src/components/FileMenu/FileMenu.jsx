@@ -33,7 +33,11 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
     trashedItems,
     toggleTrash,
     shareItemWithUser,
+    files,
+    folders,
   } = useFiles();
+  const selectedItem =
+    (fileType === "files" ? selectedFiles : selectedFolders)[0] || null;
 
   const handleOpenShareModal = () => {
     setShareShowModal(true);
@@ -208,14 +212,14 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
               />
             </Dropdown.Toggle>
 
-            <Dropdown.Menu>
+            <Dropdown.Menu className="file-menu-dropdown">
               <Dropdown.Item
                 href="#/action-1"
                 className="kebab-items"
                 disabled
                 style={{ color: "black" }}
               >
-                Name:
+                Name: <span>{selectedItem ? selectedItem.name : "N/A"}</span>
               </Dropdown.Item>{" "}
               <Dropdown.Item
                 href="#/action-1"
@@ -223,7 +227,7 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
                 disabled
                 style={{ color: "black" }}
               >
-                Owner:
+                Owner: <span> {selectedItem ? selectedItem.owner : "N/A"}</span>
               </Dropdown.Item>{" "}
               <Dropdown.Item
                 href="#/action-1"
@@ -232,6 +236,15 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
                 style={{ color: "black" }}
               >
                 Uploaded Date:
+                <span>
+                  {" "}
+                  {selectedItem
+                    ? selectedItem.reason.substring(
+                        11,
+                        selectedItem.reason.length
+                      )
+                    : "N/A"}
+                </span>
               </Dropdown.Item>{" "}
               <Dropdown.Item
                 href="#/action-1"
@@ -239,7 +252,8 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
                 disabled
                 style={{ color: "black" }}
               >
-                Location:
+                Location:{" "}
+                <span>{selectedItem ? selectedItem.location : "N/A"}</span>
               </Dropdown.Item>
               <Dropdown
                 as="span"
@@ -253,32 +267,29 @@ const FileMenu = ({ selectedFileIds, selectedFolderIds }) => {
 
                 <Dropdown.Menu align="end" className="nested-dropdown-menu">
                   <Dropdown.Item className="kebab-items" href="#/action-2">
-                    Type
+                    Type:
+                    <span>
+                      {" "}
+                      {selectedItem
+                        ? fileType === "files"
+                          ? selectedItem.mimeType
+                          : "Folder"
+                        : "N/A"}
+                    </span>
                   </Dropdown.Item>
                   <Dropdown.Item className="kebab-items" href="#/action-3">
-                    Size
-                  </Dropdown.Item>
-                  <Dropdown.Item className="kebab-items" href="#/action-3">
-                    Owner
-                  </Dropdown.Item>
-                  <Dropdown.Item className="kebab-items" href="#/action-3">
-                    Location
+                    Size:{" "}
+                    <span>
+                      {" "}
+                      {selectedItem
+                        ? fileType === "files"
+                          ? selectedItem.size
+                          : ""
+                        : "N/A"}
+                    </span>
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-              <Dropdown.Item href="#/action-1" className="kebab-items">
-                <Trash
-                  className="file-menu-icon"
-                  weight="bold"
-                  size={18}
-                  style={{
-                    margin: "0 5px",
-                    color: "#444746",
-                    cursor: "pointer",
-                  }}
-                />
-                Move to Trash
-              </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </Button>

@@ -17,6 +17,9 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState({ email: "", username: "" });
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
+  const [rememberMe, setRememberMe] = useState(
+    () => localStorage.getItem("rememberMe") === "true"
+  );
 
   const getCurrentUser = async () => {
     try {
@@ -51,8 +54,10 @@ export const AuthProvider = ({ children }) => {
         "http://localhost:3001/login/password",
         { password }
       );
-      setUser(response.data); // Assuming the response includes user details
-
+      setUser(response.data);
+      if (rememberMe) {
+        localStorage.setItem("userPassword", password);
+      }
       return response.data;
     } catch (error) {
       throw error.response.data;
@@ -118,6 +123,8 @@ export const AuthProvider = ({ children }) => {
       setUsers,
       error,
       setError,
+      rememberMe,
+      setRememberMe,
     }),
     [user, currentUser, users]
   );

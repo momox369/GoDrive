@@ -54,9 +54,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // Set to true in production with HTTPS
+      secure: false,
       httpOnly: true,
-      maxAge: 1000 * 60 * 60, // Adjust as necessary
+      maxAge: 1000 * 60 * 60,
     },
   })
 );
@@ -87,11 +87,11 @@ userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters long"],
-      select: false, // This prevents the password from being returned in queries by default
+      select: false,
     },
   },
   {
-    timestamps: true, // Adds createdAt and updatedAt timestamps
+    timestamps: true,
   }
 );
 userSchema.pre("save", async function (next) {
@@ -105,7 +105,6 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-// Method to check the password validity
 userSchema.methods.isValidPassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
@@ -124,7 +123,7 @@ const storage = multer.diskStorage({
             "uploads",
             parentFolder.location
           );
-          fs.mkdirSync(uploadPath, { recursive: true }); // Ensure the directory exists
+          fs.mkdirSync(uploadPath, { recursive: true });
           cb(null, uploadPath);
         }
       });
@@ -195,7 +194,7 @@ app.post("/login/email", async (req, res) => {
 });
 
 app.post("/login/password", async (req, res) => {
-  const { password } = req.body;
+  const { password, rememberMe } = req.body;
 
   if (!req.session.user || !req.session.user.id) {
     return res.status(401).send("Session expired or invalid.");
@@ -207,9 +206,14 @@ app.post("/login/password", async (req, res) => {
       return res.status(404).send("User not found.");
     }
 
-    const isMatch = await user.isValidPassword(password, user.password);
+    const isMatch = await user.isValidPassword(password);
     if (isMatch) {
-      // You might want to refresh the session here or redirect the user
+      // Extend session if remember me is checked
+      if (rememberMe) {
+        req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 30; // 30 days
+      } else {
+        req.session.cookie.maxAge = 1000 * 60 * 60; // 1 hour
+      }
       res.send("Authenticated successfully.");
     } else {
       res.status(401).send("Invalid password.");
@@ -219,7 +223,6 @@ app.post("/login/password", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 app.get("/current-user", async (req, res) => {
   if (!req.session.user || !req.session.user.id) {
     return res.status(401).send("No user is currently signed in.");
@@ -369,7 +372,7 @@ app.post("/create-folder", cors(corsOptions), async (req, res) => {
 });
 
 app.delete("/delete", async (req, res) => {
-  const { ids } = req.body; // These should be MongoDB '_id's
+  const { ids } = req.body;
   try {
     const deletePromises = ids.map(async (_id) => {
       const file = await File.findById(_id);
@@ -477,7 +480,10 @@ app.get("/folder-contents/:folderId", async (req, res) => {
       isDeleted: file.isDeleted,
     }));
 
-    res.json(results);
+    res.json({
+      folderName: folder.name,
+      contents: results,
+    });
   } catch (error) {
     console.error("Failed to fetch folder contents:", error);
     res.status(500).send("Internal Server Error");
@@ -512,7 +518,7 @@ app.get("/filter", async (req, res) => {
 });
 
 app.post("/toggle-star", async (req, res) => {
-  const { id } = req.body; // Again, make sure 'id' corresponds to MongoDB '_id'
+  const { id } = req.body;
   try {
     const file = await File.findById(id);
     if (!file) {
@@ -551,7 +557,7 @@ app.post("/toggle-trash", async (req, res) => {
   const { ids } = req.body;
   try {
     const toggleTrashPromises = ids.map(async (id) => {
-      const file = await File.findById(id); // Using findById automatically targets _id
+      const file = await File.findById(id);
       if (!file) {
         return { id, status: "File not found" };
       }
@@ -594,12 +600,11 @@ app.get("/trash", async (req, res) => {
   }
 });
 
-// Ensure this endpoint exists and is correct in your server file
 app.post("/update-filename", async (req, res) => {
   const { id, newName } = req.body;
 
   try {
-    const file = await File.findById(id); // Using findById to find the document
+    const file = await File.findById(id);
     if (!file) {
       return res.status(404).send("File not found");
     }
@@ -657,7 +662,7 @@ app.get("/files-shared-with-me", async (req, res) => {
 app.get("/search-users", async (req, res) => {
   const searchQuery = req.query.query;
   try {
-    const regex = new RegExp(searchQuery, "i"); // Case-insensitive regex search
+    const regex = new RegExp(searchQuery, "i");
     const users = await User.find({
       $or: [{ email: { $regex: regex } }, { username: { $regex: regex } }],
     }).select("email username _id");
@@ -668,10 +673,6 @@ app.get("/search-users", async (req, res) => {
   }
 });
 
-app.listen(3001, () => {
-  console.log("Server running on port 3001");
-});
-
 app.get("/files/basic-search", async (req, res) => {
   const { query } = req.query;
   if (!req.session.user || !req.session.user.username) {
@@ -680,7 +681,7 @@ app.get("/files/basic-search", async (req, res) => {
 
   try {
     const results = await File.find({
-      owner: req.session.user.username, // Restrict search to user-owned files
+      owner: req.session.user.username,
       $or: [
         { name: { $regex: query, $options: "i" } },
         { type: { $regex: query, $options: "i" } },
@@ -721,7 +722,7 @@ app.get("/files/search", async (req, res) => {
   let query = {};
   if (mimeType) query.mimeType = mimeType;
   if (owner) query.owner = owner;
-  if (date) query.date = { $gte: new Date(date).toISOString() }; // Adjust based on your date handling
+  if (date) query.date = { $gte: new Date(date).toISOString() };
 
   try {
     const files = await File.find(query);
@@ -729,4 +730,7 @@ app.get("/files/search", async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error searching for files", error });
   }
+});
+app.listen(3001, () => {
+  console.log("Server running on port 3001");
 });

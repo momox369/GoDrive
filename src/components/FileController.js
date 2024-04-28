@@ -8,6 +8,15 @@ import React, {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
+import { FileXls } from "@phosphor-icons/react/dist/ssr";
+import {
+  FileDoc,
+  FilePdf,
+  FileTxt,
+  FileZip,
+  VideoCamera,
+} from "@phosphor-icons/react";
+import { Folder } from "react-bootstrap-icons";
 const FileContext = createContext();
 
 export const useFiles = () => useContext(FileContext);
@@ -29,6 +38,7 @@ export const FileProvider = ({ children }) => {
   const navigate = useNavigate();
   const [folderFiles, setFolderFiles] = useState([]);
   const [folderId, setFolderId] = useState(null);
+  const [folderName, setFolderName] = useState("");
   const [tab, setTab] = useState("starred");
 
   const [fileTypes, setFileExtensions] = useState([]);
@@ -89,12 +99,29 @@ export const FileProvider = ({ children }) => {
     "video/avi": "AVI Video",
     "video/mpeg": "MPEG Video",
   };
+  const fileIconMapping = {
+    "application/msword": <FileDoc size={20} />,
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": (
+      <FileDoc size={20} />
+    ),
+    "application/vnd.ms-excel": <FileXls size={20} />,
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": (
+      <FileXls size={20} />
+    ),
+    "text/plain": <FileTxt size={20} />,
+    "application/zip": <FileZip size={20} />,
+    "application/x-rar-compressed": <FileZip size={20} />,
+    "application/pdf": <FilePdf size={20} />,
+    "video/mp4": <VideoCamera size={20} />,
+    "video/x-matroska": <VideoCamera size={20} />,
+    "video/webm": <VideoCamera size={20} />,
+    "video/avi": <VideoCamera size={20} />,
+    "video/mpeg": <VideoCamera size={20} />,
+  };
 
   const updateFileTypes = (files) => {
-    // Create a map to ensure unique types based on MIME type
     const newTypesMap = new Map();
 
-    // Populate the map, thus deduplicating by mimeType
     files.forEach((file) => {
       const mimeType = file.mimeType;
       if (!newTypesMap.has(mimeType) && filterType === "files") {
@@ -105,10 +132,8 @@ export const FileProvider = ({ children }) => {
       }
     });
 
-    // Convert the map values to an array of unique types
     const uniqueNewTypes = Array.from(newTypesMap.values());
 
-    // Use functional update form of setState
     setFileExtensions((currentTypes) => {
       const currentMimeTypes = new Set(
         currentTypes.map((type) => type.mimeType)
@@ -154,7 +179,6 @@ export const FileProvider = ({ children }) => {
 
   const fetchFilesAndFolders = useCallback(async () => {
     try {
-      // Fetch personal files and folders
       const endpoint = folderId ? `folder-contents/${folderId}` : "files";
       const personalFilesResponse = await axios.get(
         `http://localhost:3001/${endpoint}`
@@ -171,7 +195,7 @@ export const FileProvider = ({ children }) => {
       const personalFiles = personalFilesResponse.data.filter(
         (item) => item.type === "files"
       );
-      const sharedFiles = sharedFilesResponse.data; // Assuming all are files
+      const sharedFiles = sharedFilesResponse.data;
 
       const combinedFiles = [...personalFiles, ...sharedFiles];
 
@@ -425,6 +449,14 @@ export const FileProvider = ({ children }) => {
       }
     }
   };
+  const FileIcon = ({ mimeType }) => {
+    const defaultIcon = <Folder size={20} weight="fill" />;
+    const mimeGroup = mimeType.split("/")[0];
+    return (
+      fileIconMapping[mimeType] ||
+      (mimeGroup === "video" ? fileIconMapping["video/*"] : defaultIcon)
+    );
+  };
 
   return (
     <FileContext.Provider
@@ -471,12 +503,16 @@ export const FileProvider = ({ children }) => {
         folderId,
         handleFolderDoubleClick,
         setFolderId,
+        folderName,
+        setFolderName,
         tab,
         setTab,
         fetchStarredItems,
         fileTypes,
         updateFileTypes,
         fetchFiles,
+        fileIconMapping,
+        FileIcon,
       }}
     >
       {children}

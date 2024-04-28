@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../components/AuthProvider";
 
 const SignInPass = () => {
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { verifyPassword } = useAuth();
   const [rememberMe, setRememberMe] = useState(false);
@@ -20,6 +19,9 @@ const SignInPass = () => {
     } catch (error) {
       console.error("Login failed:", error);
     }
+  };
+  const handleRegisterClick = () => {
+    navigate("/signup"); // Navigate to the signup page
   };
 
   return (
@@ -76,8 +78,11 @@ const SignInPass = () => {
               Sign In
             </Button>
           </div>
-          <span>
-            Don't Have An Account? <span>Register Here</span>
+          <span className="no-account">
+            Don't Have An Account?{" "}
+            <span onClick={handleRegisterClick} className="register-here">
+              Register Here
+            </span>
           </span>
         </div>
       </form>

@@ -34,6 +34,8 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
     files,
     folders,
     updateFileTypes,
+    filterType,
+    FileIcon,
   } = useFiles();
   useEffect(() => {
     updateFileTypes(items);
@@ -234,6 +236,14 @@ const ListView = ({ items, isSelected, handleItemClick }) => {
               }
               id="name"
             >
+              <span>
+                {" "}
+                {filterType === "folders" ? (
+                  <Folder size={20} weight="fill" />
+                ) : (
+                  <FileIcon mimeType={item.mimeType} />
+                )}{" "}
+              </span>
               {item.name.length > 50
                 ? item.name.substring(0, 49) + "..."
                 : item.name}
